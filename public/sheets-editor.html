@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Sheets Contact Editor</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            background-color: #fff;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .iframe-container {
+            flex-grow: 1;
+            height: calc(100vh - 64px);
+        }
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="flex items-center space-x-4">
+            <svg class="h-8 w-8 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.25 3h9m-9.75 3.75h9.75c1.036 0 1.875-.84 1.875-1.875V4.875c0-1.036-.84-1.875-1.875-1.875H3.375c-1.036 0-1.875.84-1.875 1.875v11.25c0 1.036.84 1.875 1.875 1.875z" />
+            </svg>
+            <div>
+                <h1 class="text-xl font-bold text-slate-800">AI Caller Inc. - Contact Management</h1>
+                <p class="text-sm text-slate-500">Direct Google Sheets Editor</p>
+            </div>
+        </div>
+        <div>
+            <button onclick="window.close()" class="px-4 py-2 bg-slate-100 text-slate-700 rounded hover:bg-slate-200 flex items-center">
+                <svg class="h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+                </svg>
+                Return to Dashboard
+            </button>
+        </div>
+    </div>
+    <div class="iframe-container">
+        <!-- Google Sheets iframe with edit permissions -->
+        <iframe 
+            src="https://docs.google.com/spreadsheets/d/1vOfTLk14C0G9Dz1rTTJIpEe1XB9eDRRv65fnYVQrLWw/edit?usp=sharing" 
+            allowfullscreen>
+        </iframe>
+    </div>
+
+    <script>
+        // Add any additional functionality here if needed
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check if we're in an iframe and act accordingly
+            if (window.self !== window.top) {
+                // We're in an iframe, adjust UI as needed
+                document.querySelector('.header').style.display = 'none';
+                document.querySelector('.iframe-container').style.height = '100vh';
+            }
+        });
+    </script>
+</body>
+</html>

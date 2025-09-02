@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Direct Google Sheet View</title>
+    <style>
+        /* Remove all margins and padding to maximize space for the sheet */
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+        /* Container takes up full viewport */
+        .iframe-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        /* Iframe takes up full container */
+        .iframe-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="iframe-container">
+        <!-- 
+            Google Sheets iframe with parameters to hide UI elements:
+            - rm=minimal: removes most of the UI
+            - chrome=false: hides the Chrome browser UI
+            - headers=false: hides the headers
+        -->
+        <iframe 
+            src="https://docs.google.com/spreadsheets/d/1vOfTLk14C0G9Dz1rTTJIpEe1XB9eDRRv65fnYVQrLWw/edit?usp=sharing&rm=minimal&chrome=false&headers=false" 
+            allowfullscreen>
+        </iframe>
+    </div>
+
+    <script>
+        // Ensure we focus on the iframe when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            const iframe = document.querySelector('iframe');
+            if (iframe) {
+                iframe.focus();
+            }
+        });
+    </script>
+</body>
+</html>

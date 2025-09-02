@@ -1,0 +1,12 @@
+Name,Industry,Address,CallStatus,CompanyInfo
+TestUser1,tech,City1,Meeting Booked,Test company 1
+TestUser2,sales,City2,Pending,Test company 2  
+TestUser3,tech,City3,Scheduled,Test company 3
+TestUser4,finance,City4,Pending Recall,Test company 4
+TestUser5,marketing,City5,meeting booked,Test company 5
+TestUser6,tech,City6, PENDING ,Test company 6
+TestUser7,sales,City7,Scheduled,Test company 7
+TestUser8,tech,City8,Pending Recall,Test company 8
+TestUser9,other,City9,Unknown,Test company 9
+TestUser10,tech,City10,,Test company 10
+TestUser11,sales,City11,NULL,Test company 11
