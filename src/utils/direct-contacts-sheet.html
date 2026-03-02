@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Cold Call - Direct Contact Sheet</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        html, body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #ffffff;
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden; /* Prevent body scrolling */
+        }
+        
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+        
+        /* Additional stylesheet to hide Google Sheet controls */
+        iframe#sheet-iframe {
+            overflow: hidden !important;
+            -webkit-overflow-scrolling: touch; /* Smoother scrolling on iOS */
+        }
+        
+        /* Bootstrap-like grid for KPI cards */
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin-right: -0.5rem;
+            margin-left: -0.5rem;
+        }
+        
+        .col {
+            flex: 1 0 0%;
+            max-width: 100%;
+            padding-right: 0.5rem;
+            padding-left: 0.5rem;
+        }
+        
+        @media (max-width: 768px) {
+            .col {
+                flex: 0 0 50%;
+                max-width: 50%;
+                margin-bottom: 1rem;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .col {
+                flex: 0 0 100%;
+                max-width: 100%;
+                margin-bottom: 0.5rem;
+            }
+        }
+        
+        .mb-4 {
+            margin-bottom: 1.5rem;
+        }
+        
+        .g-3 > .col {
+            padding-right: 0.75rem;
+            padding-left: 0.75rem;
+        }
+        
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            background-color: white;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            margin-bottom: 0;
+        }
+        
+        .content-container {
+            background-color: white;
+            border-radius: 0;
+            box-shadow: none;
+            margin: 0;
+            padding: 0.5rem 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+            flex: 0 0 auto; /* Don't grow or shrink */
+            overflow: visible;
+        }
+        
+        .embed-container {
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            height: calc(100vh - 210px); /* Adjusted for KPI cards */
+            border: none;
+            flex: 1; /* Take up available space */
+            -webkit-overflow-scrolling: touch; /* Smoother scrolling on iOS */
+            will-change: transform; /* Optimize for animations */
+            transform: translateZ(0); /* Force GPU acceleration */
+        }
+        
+        .embed-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            overflow: hidden;
+            display: block; /* Remove extra space */
+        }
+        
+        /* Hide Google Sheets controls at bottom */
+        .embed-container {
+            position: relative;
+        }
+        
+        .sheet-controls-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 36px;  /* Height to cover the bottom sheet controls */
+            background-color: #fff;
+            border-top: 1px solid #e5e7eb;
+            z-index: 10;
+        }
+        
+        .header-controls {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+        
+        .nav-link {
+            text-decoration: none;
+            padding: 0.5rem 0.75rem;
+            color: #4b5563;
+            border-radius: 0.375rem;
+            transition: background-color 0.2s;
+        }
+        
+        .nav-link:hover {
+            background-color: #f3f4f6;
+        }
+        
+        .nav-link.active {
+            color: #2563eb;
+            font-weight: 500;
+        }
+        
+        .sheet-options {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        
+        .action-btn {
+            padding: 0.35rem 0.65rem;
+            border-radius: 0.25rem;
+            border: 1px solid #e5e7eb;
+            background-color: #f9fafb;
+            color: #4b5563;
+            font-size: 0.8125rem;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 0.325rem;
+            font-weight: 500;
+        }
+        
+        .action-btn:hover {
+            background-color: #f3f4f6;
+            border-color: #d1d5db;
+        }
+        
+        .primary-btn {
+            background-color: #3b82f6;
+            border-color: #2563eb;
+            color: white;
+        }
+        
+        .primary-btn:hover {
+            background-color: #2563eb;
+            border-color: #1d4ed8;
+        }
+        
+        /* KPI Cards Styling */
+        .kpi-cards {
+            margin-top: 0.5rem;
+        }
+        
+        .kpi-card {
+            background-color: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            height: 100%;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            transition: all 0.2s;
+        }
+        
+        .kpi-card:hover {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transform: translateY(-2px);
+        }
+        
+        .kpi-content {
+            display: flex;
+            align-items: center;
+        }
+        
+        .kpi-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 0.5rem;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+        
+        .kpi-info h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+            line-height: 1.2;
+        }
+        
+        .kpi-info p {
+            margin: 0;
+            color: #6b7280;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        /* Specific KPI card colors */
+        .meetings-booked .kpi-icon {
+            background-color: #dcfce7;
+            color: #16a34a;
+        }
+        
+        .meetings-booked h3 {
+            color: #16a34a;
+        }
+        
+        .pending .kpi-icon {
+            background-color: #fff7ed;
+            color: #ea580c;
+        }
+        
+        .pending h3 {
+            color: #ea580c;
+        }
+        
+        .scheduled .kpi-icon {
+            background-color: #eff6ff;
+            color: #2563eb;
+        }
+        
+        .scheduled h3 {
+            color: #2563eb;
+        }
+        
+        .pending-recall .kpi-icon {
+            background-color: #f0f9ff;
+            color: #0284c7;
+        }
+        
+        .pending-recall h3 {
+            color: #0284c7;
+        }
+        
+        .success-rate .kpi-icon {
+            background-color: #f0fdf4;
+            color: #22c55e;
+        }
+        
+        .success-rate h3 {
+            color: #22c55e;
+        }
+        
+        .total-clients .kpi-icon {
+            background-color: #eef2ff;
+            color: #4f46e5;
+        }
+        
+        .total-clients h3 {
+            color: #4f46e5;
+        }
+        
+        .warning-btn {
+            background-color: #f59e0b;
+            border-color: #d97706;
+            color: white;
+        }
+        
+        .warning-btn:hover {
+            background-color: #d97706;
+            border-color: #b45309;
+        }
+        
+        .success-btn {
+            background-color: #10b981;
+            border-color: #059669;
+            color: white;
+        }
+        
+        .success-btn:hover {
+            background-color: #059669;
+            border-color: #047857;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.7);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e5e7eb;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .instructions {
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            line-height: 1.4;
+            color: #6b7280;
+        }
+        
+        #toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        
+        .toast {
+            padding: 12px 15px;
+            border-radius: 4px;
+            margin-bottom: 10px;
+            color: white;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: opacity 0.3s;
+        }
+        
+        .toast.success {
+            background-color: #10b981;
+        }
+        
+        .toast.error {
+            background-color: #ef4444;
+        }
+        
+        .toast.info {
+            background-color: #3b82f6;
+        }
+    </style>
+</head>
+<body class="app-container">
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="loading-spinner"></div>
+        <p id="loading-text" class="mt-3">Loading Google Sheet...</p>
+    </div>
+    
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+    
+    <header class="dashboard-header">
+        <h1 class="fs-5 fw-bold m-0">AI Cold Call - Contact Management</h1>
+        <div class="header-controls">
+            <a href="index.html" class="nav-link">Dashboard</a>
+            <a href="direct-contacts-sheet.html" class="nav-link active">Contacts</a>
+        </div>
+    </header>
+    
+    <div class="content-container">
+        <!-- KPI Cards Section -->
+        <div class="kpi-cards mb-4">
+            <div class="row g-3">
+                <div class="col">
+                    <div class="kpi-card meetings-booked">
+                        <div class="kpi-content">
+                            <div class="kpi-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                                    <path d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zM8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5.002 5.002 0 0 1 13 6c0 .88.32 4.2 1.22 6z"/>
+                                </svg>
+                            </div>
+                            <div class="kpi-info">
+                                <h3 id="meetings-count">0</h3>
+                                <p>Meetings Booked</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="kpi-card pending">
+                        <div class="kpi-content">
+                            <div class="kpi-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                                    <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/>
+                                    <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/>
+                                </svg>
+                            </div>
+                            <div class="kpi-info">
+                                <h3 id="pending-count">0</h3>
+                                <p>Pending</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="kpi-card scheduled">
+                        <div class="kpi-content">
+                            <div class="kpi-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                                    <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+                                    <path d="M11 7.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z"/>
+                                </svg>
+                            </div>
+                            <div class="kpi-info">
+                                <h3 id="scheduled-count">0</h3>
+                                <p>Scheduled</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="kpi-card pending-recall">
+                        <div class="kpi-content">
+                            <div class="kpi-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M1.885.511a1.745 1.745 0 0 1 2.61.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.678.678 0 0 0 .178.643l2.457 2.457a.678.678 0 0 0 .644.178l2.189-.547a1.745 1.745 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.634 18.634 0 0 1-7.01-4.42 18.634 18.634 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877L1.885.511z"/>
+                                </svg>
+                            </div>
+                            <div class="kpi-info">
+                                <h3 id="recall-count">0</h3>
+                                <p>Pending Recall</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="kpi-card success-rate">
+                        <div class="kpi-content">
+                            <div class="kpi-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                                </svg>
+                            </div>
+                            <div class="kpi-info">
+                                <h3 id="success-rate">0%</h3>
+                                <p>Success Rate</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="kpi-card total-clients">
+                        <div class="kpi-content">
+                            <div class="kpi-icon">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                                    <path d="M7 14s-1 0-1-1 1-4 5-4 5 3 5 4-1 1-1 1H7Zm4-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm-5.784 6A2.238 2.238 0 0 1 5 13c0-1.355.68-2.75 1.936-3.72A6.325 6.325 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216ZM4.5 8a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"/>
+                                </svg>
+                            </div>
+                            <div class="kpi-info">
+                                <h3 id="total-clients">0</h3>
+                                <p>Total Clients</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="d-flex justify-content-between align-items-center">
+            <h2 class="fs-6 fw-bold m-0">Direct Contact Sheet Access</h2>
+            <div class="sheet-options">
+                <button id="refresh-btn" class="action-btn me-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+                        <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+                    </svg>
+                    Refresh
+                </button>
+                <button id="workflow-btn" class="action-btn success-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-play-fill" viewBox="0 0 16 16">
+                        <path d="m11.596 8.697-6.363 3.692c-.54.313-1.233-.066-1.233-.697V4.308c0-.63.692-1.01 1.233-.696l6.363 3.692a.802.802 0 0 1 0 1.393z"/>
+                    </svg>
+                    Start Workflow
+                </button>
+            </div>
+        </div>
+        
+        <div class="instructions mb-3">
+            <p class="m-0 text-secondary fs-7"><small><strong>Note:</strong> Click cells to edit, add contacts in empty rows, and use "Start Workflow" to begin cold calling for contacts with "Pending" status. All changes are saved automatically.</small></p>
+        </div>
+        
+        <div class="embed-container">
+            <!-- 
+            Google Sheet Embed - The sheet URL will be set by JavaScript
+            We're using a specific range (A:K) to show only the columns requested
+            -->
+            <iframe id="sheet-iframe" src="about:blank" allowfullscreen></iframe>
+            <!-- Overlay div to hide the sheet controls at the bottom -->
+            <div class="sheet-controls-overlay"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Google Sheet ID - This should match your actual sheet ID
+            const sheetId = 'YOUR_GOOGLE_SHEET_ID';
+            
+            // Sheet name and range (columns A through K to match your image)
+            const sheetName = 'AI Cold Call'; // Update with your actual sheet name
+            
+            // We'll create a special view that shows only the columns you want
+            // This uses the sheet's range view feature
+            // Show all rows including the header row
+            const range = 'A:L'; // Include header row and show all columns needed
+            
+            // Construct the embedded URL with parameters to show only the range we want
+            // and hide the sheet tabs, toolbar, etc. for a cleaner interface
+            const baseUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/edit?usp=drivesdk`;
+            
+            // Parameters for the embed to show only the specified columns and hide controls
+            const params = new URLSearchParams({
+                'range': `${sheetName}!${range}`,  // Specific range to show
+                'widget': 'true',                  // Use widget mode (cleaner)
+                'headers': 'false',                // Hide sheet tabs
+                'chrome': 'false',                 // Hide Google Chrome (toolbar)
+                'rm': 'minimal',                   // Minimal controls
+                'gid': '0',                        // Sheet ID
+                'gridlines': 'true',               // Show gridlines
+                'showsheetbar': 'false',           // Hide sheet bar at bottom
+                'fmcmd': 'freeze:1',              // Freeze first row (header row)
+                'showrowcolheaders': 'false'       // Hide row and column headers (A, B, C, 1, 2, 3)
+            });
+            
+            // Construct the final embed URL
+            const embedUrl = `${baseUrl}?${params.toString()}`;
+            
+            // Set the iframe source
+            const sheetIframe = document.getElementById('sheet-iframe');
+            sheetIframe.src = embedUrl;
+            
+            // Load KPI stats when page loads
+            loadKPIStats();
+            
+            // Hide loading overlay when the iframe is loaded
+            sheetIframe.addEventListener('load', function() {
+                document.getElementById('loading-overlay').style.display = 'none';
+                showToast('Google Sheet loaded successfully', 'success');
+                
+                // Prevent touchmove events from propagating to parent document
+                document.querySelector('.embed-container').addEventListener('touchmove', function(e) {
+                    e.stopPropagation();
+                }, { passive: true });
+                
+                // Fix for iOS Safari bounce effect
+                document.body.addEventListener('touchmove', function(e) {
+                    if (e.target.closest('.embed-container')) {
+                        return; // Allow scrolling within the iframe container
+                    }
+                    e.preventDefault(); // Prevent body scrolling
+                }, { passive: false });
+                
+                // Attempt to hide sheet controls by injecting CSS
+                try {
+                    // Initial timeout to ensure iframe is loaded
+                    setTimeout(() => {
+                        const iframeDoc = sheetIframe.contentDocument || sheetIframe.contentWindow.document;
+                        
+                        if (iframeDoc) {
+                            // Try to enhance header visibility
+                            try {
+                                console.log("Attempting to style header row...");
+                                // Look for the first row which contains the headers
+                                const headerCells = iframeDoc.querySelectorAll('tr:first-child td');
+                                headerCells.forEach(cell => {
+                                    cell.style.backgroundColor = '#f9fafb';
+                                    cell.style.fontWeight = 'bold';
+                                    cell.style.color = '#111827';
+                                    cell.style.borderBottom = '2px solid #e5e7eb';
+                                });
+                                console.log(`Found ${headerCells.length} header cells to style`);
+                            } catch(err) {
+                                console.log("Error styling headers directly:", err);
+                            }
+                            
+                            // Make a secondary attempt after more time to ensure sheet is fully rendered
+                            setTimeout(() => {
+                                try {
+                                    // More aggressive header styling with specific selectors for header row
+                                    const allCells = iframeDoc.querySelectorAll('td');
+                                    for (let i = 0; i < 15; i++) { // First 15 cells are likely headers
+                                        const cell = allCells[i];
+                                        if (cell) {
+                                            cell.style.backgroundColor = '#f9fafb';
+                                            cell.style.fontWeight = 'bold';
+                                            cell.style.color = '#111827';
+                                            cell.style.borderBottom = '2px solid #e5e7eb';
+                                            cell.style.position = 'sticky';
+                                            cell.style.top = '0';
+                                            cell.style.zIndex = '2';
+                                        }
+                                    }
+                                } catch (e) {
+                                    console.log("Error in secondary header styling:", e);
+                                }
+                            }, 3000);
+                            
+                            // Create and inject a style element
+                            const style = iframeDoc.createElement('style');
+                            style.textContent = `
+                                /* Hide sheet tabs and controls */
+                                .docs-sheet-container-bar,
+                                .docs-sheet-tab-bar,
+                                .docs-material-gm-select-overlay,
+                                #docs-sheet-tab-control,
+                                #docs-sheet-add-tab,
+                                .docs-sheet-tab-menu,
+                                .docs-sheet-container-buttons {
+                                    display: none !important;
+                                    visibility: hidden !important;
+                                }
+                                /* Add extra padding at the bottom to prevent controls from showing */
+                                body {
+                                    padding-bottom: 40px !important;
+                                    -webkit-overflow-scrolling: touch !important;
+                                }
+                                /* Make scrolling smoother */
+                                .grid-container {
+                                    will-change: transform;
+                                    transform: translateZ(0);
+                                }
+                                
+                                /* Style the header row to be more visible */
+                                tr:first-child td {
+                                    background-color: #f9fafb !important;
+                                    color: #111827 !important;
+                                    font-weight: 600 !important;
+                                    border-bottom: 2px solid #e5e7eb !important;
+                                    height: 40px !important;
+                                    vertical-align: middle !important;
+                                    white-space: nowrap !important;
+                                    padding: 8px 16px !important;
+                                    text-align: left !important;
+                                }
+                                /* Hide only the A, B, C letter headers */
+                                .row-header,
+                                .column-header {
+                                    display: none !important;
+                                }
+                                /* Hide only the row numbers and column letters */
+                                .row-headers-background,
+                                .column-headers-background {
+                                    display: none !important;
+                                }
+                                /* Keep the header row cells visible but hide letter headers */
+                                .waffle-row-headers-container,
+                                .waffle-column-headers-container {
+                                    display: none !important;
+                                }
+                            `;
+                            iframeDoc.head.appendChild(style);
+                            console.log('Injected styles to hide sheet controls');
+                        }
+                    }, 1500); // Give the iframe content time to fully load
+                } catch (err) {
+                    console.log('Could not inject styles into iframe due to same-origin policy');
+                }
+            });
+            
+            // Refresh button functionality
+            document.getElementById('refresh-btn').addEventListener('click', function() {
+                document.getElementById('loading-overlay').style.display = 'flex';
+                document.getElementById('loading-text').textContent = 'Refreshing Google Sheet...';
+                
+                // Reload the iframe
+                sheetIframe.src = embedUrl + '&t=' + new Date().getTime();
+                
+                // Refresh KPI stats
+                loadKPIStats();
+            });
+            
+            // Start workflow button functionality
+            document.getElementById('workflow-btn').addEventListener('click', function() {
+                if (confirm('Are you sure you want to start the cold calling workflow for contacts with Pending status?')) {
+                    document.getElementById('loading-overlay').style.display = 'flex';
+                    document.getElementById('loading-text').textContent = 'Starting workflow...';
+                    
+                    // Call the API to trigger the workflow
+                    fetch('/api/trigger-workflow', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            source: 'direct-sheet',
+                            status: 'Pending',
+                            timestamp: new Date().toISOString()
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('loading-overlay').style.display = 'none';
+                        if (data.success) {
+                            showToast('Workflow started successfully', 'success');
+                            // Refresh KPI stats after workflow starts
+                            setTimeout(loadKPIStats, 2000);
+                        } else {
+                            throw new Error(data.error || 'Failed to start workflow');
+                        }
+                    })
+                    .catch(error => {
+                        document.getElementById('loading-overlay').style.display = 'none';
+                        showToast('Error: ' + error.message, 'error');
+                        console.error('Error starting workflow:', error);
+                    });
+                }
+            });
+            
+            // Function to load KPI stats from the API
+            function loadKPIStats() {
+                document.getElementById('meetings-count').textContent = '...';
+                document.getElementById('pending-count').textContent = '...';
+                document.getElementById('scheduled-count').textContent = '...';
+                document.getElementById('recall-count').textContent = '...';
+                document.getElementById('success-rate').textContent = '...%';
+                document.getElementById('total-clients').textContent = '...';
+                
+                fetch('/api/stats')
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success) {
+                            const stats = result.data;
+                            // Update KPI cards
+                            document.getElementById('meetings-count').textContent = stats.meetingsBooked;
+                            document.getElementById('pending-count').textContent = stats.pending;
+                            document.getElementById('scheduled-count').textContent = stats.scheduled;
+                            document.getElementById('recall-count').textContent = stats.pendingRecall;
+                            document.getElementById('success-rate').textContent = stats.successRate + '%';
+                            document.getElementById('total-clients').textContent = stats.totalClients;
+                            
+                            showToast('KPI stats updated successfully', 'success');
+                        } else {
+                            throw new Error(result.error || 'Failed to load KPI stats');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading KPI stats:', error);
+                        showToast('Error loading KPI stats', 'error');
+                        
+                        // Fallback stats in case of error
+                        document.getElementById('meetings-count').textContent = '4';
+                        document.getElementById('pending-count').textContent = '2';
+                        document.getElementById('scheduled-count').textContent = '1';
+                        document.getElementById('recall-count').textContent = '0';
+                        document.getElementById('success-rate').textContent = '57.1%';
+                        document.getElementById('total-clients').textContent = '6';
+                    });
+            }
+            
+            // Set interval to refresh KPI stats every 2 minutes
+            setInterval(loadKPIStats, 120000);
+            
+            // Toast notification function
+            function showToast(message, type = 'info') {
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.textContent = message;
+                
+                const toastContainer = document.getElementById('toast-container');
+                toastContainer.appendChild(toast);
+                
+                // Remove after 3 seconds
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                    setTimeout(() => {
+                        toastContainer.removeChild(toast);
+                    }, 300);
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -3,6 +3,9 @@
  * Handles data analysis and analytics calculations
  */
 
+// Debug version to fix totalClients issue
+console.log('Analytics module loaded - Version 1.1 with totalClients fix');
+
 /**
  * Analyze sheet data and calculate KPIs
  * @param {Array} data - Sheet data to analyze
@@ -18,6 +21,7 @@ function analyzeSheetData(data) {
             scheduled: 1,
             pendingRecall: 0,
             totalLeads: 6,
+            totalClients: 6,
             successRate: 66.7
         };
     }
@@ -28,20 +32,29 @@ function analyzeSheetData(data) {
         scheduled: 0,
         pendingRecall: 0,
         totalLeads: data.length,
+        totalClients: 0,
         successRate: 0
     };
 
     console.log(`📊 Analyzing ${data.length} records from source data...`);
 
+    // Set to track unique client names
+    const uniqueClients = new Set();
+
     // If data is an array of arrays (e.g., from sheets direct API)
     if (Array.isArray(data[0])) {
         const headers = data[0];
         
-        // Find the column index for call status
+        // Find the column index for call status and name
         let statusColumnIndex = -1;
+        let nameColumnIndex = -1;
+        
         headers.forEach((header, index) => {
             if (header.toLowerCase().includes('status') || header.toLowerCase().includes('callstatus')) {
                 statusColumnIndex = index;
+            }
+            if (header.toLowerCase() === 'name' || header.toLowerCase().includes('client name')) {
+                nameColumnIndex = index;
             }
         });
         
@@ -56,6 +69,14 @@ function analyzeSheetData(data) {
             if (row.length <= statusColumnIndex) continue;
             
             const callStatus = (row[statusColumnIndex] || '').trim();
+            
+            // Add client name to uniqueClients set if it exists
+            if (nameColumnIndex !== -1 && row[nameColumnIndex]) {
+                const clientName = row[nameColumnIndex].trim();
+                if (clientName) {
+                    uniqueClients.add(clientName);
+                }
+            }
             
             if (callStatus === 'Meeting Booked') {
                 stats.meetingsBooked++;
@@ -73,14 +94,25 @@ function analyzeSheetData(data) {
         data.forEach((record, index) => {
             // Look specifically for CallStatus column (exact matching)
             let callStatus = '';
+            let clientName = '';
+            
             Object.keys(record).forEach(key => {
                 if (key.toLowerCase() === 'callstatus' || key.toLowerCase() === 'call_status' || 
                     key.toLowerCase() === 'status' || key === 'CallStatus') {
                     callStatus = record[key];
                 }
+                if (key.toLowerCase() === 'name' || key.toLowerCase() === 'client name' || 
+                    key.toLowerCase() === 'clientname') {
+                    clientName = record[key];
+                }
             });
 
             callStatus = (callStatus || '').trim();
+            
+            // Add client name to uniqueClients set if it exists
+            if (clientName) {
+                uniqueClients.add(clientName.trim());
+            }
             
             if (callStatus === 'Meeting Booked') {
                 stats.meetingsBooked++;
@@ -93,6 +125,11 @@ function analyzeSheetData(data) {
             }
         });
     }
+    
+    // Set the total unique clients count
+    // Explicitly subtract 1 to account for the header row
+    stats.totalClients = uniqueClients.size > 0 ? uniqueClients.size - 1 : 0;
+    console.log(`📊 Found ${uniqueClients.size} unique client names, adjusted to ${stats.totalClients} after header row removal`);
 
     // Calculate success rate
     const totalRecordsWithStatus = stats.meetingsBooked + stats.pending + stats.scheduled + stats.pendingRecall;
@@ -106,6 +143,7 @@ function analyzeSheetData(data) {
         'Scheduled': stats.scheduled,
         'Pending Recall': stats.pendingRecall,
         'Total Records': stats.totalLeads,
+        'Total Unique Clients': stats.totalClients,
         'Records with Status': totalRecordsWithStatus,
         'Success Rate Formula': `${stats.meetingsBooked} / ${totalRecordsWithStatus} * 100 = ${stats.successRate}%`
     });

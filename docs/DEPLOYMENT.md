@@ -11,7 +11,7 @@ This document outlines the steps to deploy the AI Cold Call Agent Website to you
 Use SCP to upload the project files to your server:
 
 ```bash
-scp -r "c:\Users\ADMIN\Downloads\AI Cold Call Agent Website\*" pranay@139.84.167.57:~/applications/ai-cold-call-website/
+scp -r ./ai-cold-call-website/* YOUR_USER@YOUR_SERVER_IP:~/applications/ai-cold-call-website/
 ```
 
 ## Step 2: Create Required Directories
@@ -29,12 +29,12 @@ cp .env.example .env
 Edit the `.env` file with your specific settings:
 ```
 PORT=3000
-GOOGLE_SHEET_ID=1vOfTLk14C0G9Dz1rTTJIpEe1XB9eDRRv65fnYVQrLWw
+GOOGLE_SHEET_ID=YOUR_GOOGLE_SHEET_ID
 GOOGLE_SHEET_RANGE='AI Cold Call'!A:Z
-GOOGLE_API_KEY=AIzaSyDk2vwPmXV1oFYXPbDS5qNdzuW4zMuZOq4
+GOOGLE_API_KEY=YOUR_GOOGLE_API_KEY
 
 # n8n Integration - Update with your server IP
-N8N_BASE_URL=http://139.84.167.57/n8n
+N8N_BASE_URL=http://YOUR_SERVER_IP/n8n
 N8N_WEBHOOK_PATH=/webhook/ai-cold-call
 ```
 
@@ -65,7 +65,7 @@ services:
     environment:
       - N8N_BASIC_AUTH_ACTIVE=true
       - N8N_BASIC_AUTH_USER=admin
-      - N8N_BASIC_AUTH_PASSWORD=ChangeMe123
+      - N8N_BASIC_AUTH_PASSWORD=YOUR_N8N_PASSWORD
       - N8N_HOST=n8n
       - N8N_PORT=5678
       - NODE_ENV=production
@@ -90,8 +90,8 @@ docker-compose up -d
 ```
 
 ## Step 7: Configure n8n Workflow
-1. Access n8n at http://139.84.167.57/n8n/
-2. Login with username: `admin`, password: `ChangeMe123`
+1. Access n8n at http://YOUR_SERVER_IP/n8n/
+2. Login with your n8n credentials
 3. Create a new workflow with a Webhook node:
    - Set the Method to POST
    - Set the Path to "ai-cold-call"
@@ -100,7 +100,7 @@ docker-compose up -d
 5. Activate the workflow
 
 ## Step 8: Test the Integration
-1. Visit your website at http://139.84.167.57/
+1. Visit your website at http://YOUR_SERVER_IP/
 2. Try triggering a workflow using the dashboard
 3. Check n8n to confirm the workflow execution
 

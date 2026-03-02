@@ -1,0 +1,23 @@
+[
+  {
+    "contact": "Selected Contact",
+    "status": "failed",
+    "timestamp": "2025-09-03T11:09:09.980Z",
+    "error": "Request failed with status code 404",
+    "recordedAt": "2025-09-03T11:09:09.995Z"
+  },
+  {
+    "contact": "Selected Contact",
+    "status": "failed",
+    "timestamp": "2025-09-03T11:18:37.656Z",
+    "error": "Request failed with status code 404",
+    "recordedAt": "2025-09-03T11:18:37.657Z"
+  },
+  {
+    "contact": "Selected Contact",
+    "status": "failed",
+    "timestamp": "2025-09-03T11:59:46.793Z",
+    "error": "Request failed with status code 404",
+    "recordedAt": "2025-09-03T11:59:46.794Z"
+  }
+]

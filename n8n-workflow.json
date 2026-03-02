@@ -1,0 +1,3199 @@
+{
+  "name": "AI Cold Call Workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "",
+        "height": 300,
+        "width": 1260,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -32,
+        208
+      ],
+      "typeVersion": 1,
+      "id": "eebad30c-f641-4b8d-871c-c6597175fca1",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "jsCode": "for (const item of items) {\n  const isoString = item.json.meetingTime;\n  if (!isoString) continue;\n\n  const dt = new Date(isoString);\n\n  // Format date as DD-MM-YYYY in IST\n  const dateOptions = { timeZone: 'Asia/Kolkata', day: '2-digit', month: '2-digit', year: 'numeric' };\n  // Format time as HH:MM in IST\n  const timeOptions = { timeZone: 'Asia/Kolkata', hour: '2-digit', minute: '2-digit', hour12: false };\n\n  item.json.formattedDate = dt.toLocaleDateString('en-GB', dateOptions).replace(/\\//g, '-');\n  item.json.formattedTime = dt.toLocaleTimeString('en-GB', timeOptions);\n\n}\nreturn items;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2656,
+        2656
+      ],
+      "id": "c042696b-ab77-4648-bec7-4050813b482c",
+      "name": "Date and Time formatting"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst updatedItems = items.map((item) => {\n  let phone = item?.json?.Phone.toString();\n  if (phone.length === 10) {\n    phone = \"+91\" + phone;\n  }\n  if (phone.length === 13) {\n    item.json.Phone = phone;\n  } else {\n    item.json.Phone = \"Invalid number\";\n  }\n  return item;\n});\nreturn updatedItems;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        848,
+        288
+      ],
+      "id": "302a7137-768d-4b08-9069-037b5a585a7f",
+      "name": "Formatting mobile number"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "AI Cold Call Agent",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1189142611,
+          "mode": "list",
+          "cachedResultName": "AI Cold Call",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=1189142611"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "CallStatus": "Meeting Booked",
+            "ScheduledDate": "={{ $('Date and Time formatting').item.json.formattedDate }}",
+            "ScheduledTime": "={{ $('Date and Time formatting').item.json.formattedTime }}",
+            "email": "={{ $('Input Arguments from booking tools').item.json.email }}",
+            "call ID": "={{ $('bookEvent').item.json.body.message.call.id }}"
+          },
+          "matchingColumns": [
+            "call ID"
+          ],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Industry",
+              "displayName": "Industry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Address",
+              "displayName": "Address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CallStatus",
+              "displayName": "CallStatus",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CompanyInfo",
+              "displayName": "CompanyInfo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "ScheduledDate",
+              "displayName": "ScheduledDate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ScheduledTime",
+              "displayName": "ScheduledTime",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CallSummary",
+              "displayName": "CallSummary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "recordingUrl",
+              "displayName": "recordingUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "LastCallDate",
+              "displayName": "LastCallDate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "call ID",
+              "displayName": "call ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "CallAnalyticsJSON",
+              "displayName": "CallAnalyticsJSON",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        3088,
+        2656
+      ],
+      "id": "66033858-cad4-40c5-bb17-754e86a19fdc",
+      "name": "Meeting details update",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "AI Cold Call Agent",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1189142611,
+          "mode": "list",
+          "cachedResultName": "AI Cold Call",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=1189142611"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "call ID": "={{ $('Filter Failed and Answered Calls').item.json.callId }}",
+            "CallSummary": "={{ $('Filter Failed and Answered Calls').item.json.callSummary }}",
+            "CallAnalyticsJSON": "={{ $('Filter Failed and Answered Calls').item.json.callTranscript }}",
+            "recordingUrl": "={{ $('Filter Failed and Answered Calls').item.json.recordingUrl }}"
+          },
+          "matchingColumns": [
+            "call ID"
+          ],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Industry",
+              "displayName": "Industry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Address",
+              "displayName": "Address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CallStatus",
+              "displayName": "CallStatus",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CompanyInfo",
+              "displayName": "CompanyInfo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ScheduledDate",
+              "displayName": "ScheduledDate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ScheduledTime",
+              "displayName": "ScheduledTime",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CallSummary",
+              "displayName": "CallSummary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "recordingUrl",
+              "displayName": "recordingUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "LastCallDate",
+              "displayName": "LastCallDate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "call ID",
+              "displayName": "call ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "CallAnalyticsJSON",
+              "displayName": "CallAnalyticsJSON",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1616,
+        1472
+      ],
+      "id": "c28d16e7-4143-45ff-a4e7-bb9b32bb69a1",
+      "name": "Google Sheets updating",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get all input items\nconst items = $input.all();\n\n// Set default timezone to IST (India Standard Time) if not specified\nconst DEFAULT_TIMEZONE = \"Asia/Kolkata\"; \n\n// Current date/time reference\nconst now = new Date();\nconsole.log(`Current UTC Time: ${now.toISOString()}`);\nconsole.log(`Current IST Time: ${new Date().toLocaleString(\"en-US\", {timeZone: \"Asia/Kolkata\"})}`);\n\n// Loop through each item\nfor (const item of items) {\n  // Get the values from the current item's JSON data\n  const startTimeUTC = item.json.starttime;\n  const endTimeUTC = item.json.endtime;\n  \n  // Use specified timezone or default to IST\n  const targetTimeZone = item.json.timeZone || DEFAULT_TIMEZONE;\n  \n  // Add timezone to item for reference\n  item.json.timeZone = targetTimeZone;\n\n  // Basic validation: ensure the necessary fields exist\n  if (!startTimeUTC || !endTimeUTC) {\n    console.warn(`Skipping item due to missing time data. Item JSON: ${JSON.stringify(item.json)}`);\n    item.json.conversionError = \"Missing starttime or endtime\";\n    continue; // Move to the next item\n  }\n\n  try {\n    // Log input times for debugging\n    console.log(`Converting times for item: Start=${startTimeUTC}, End=${endTimeUTC}, Target TZ=${targetTimeZone}`);\n    \n    // --- Start Time Conversion ---\n    // Parse the original UTC ISO string using Luxon\n    const startDt = luxon.DateTime.fromISO(startTimeUTC, { zone: 'utc' });\n\n    // Convert the DateTime object to the target timezone\n    const startDtTargetZone = startDt.setZone(targetTimeZone);\n\n    // Check if the conversion was valid\n    if (!startDtTargetZone.isValid) {\n      throw new Error(`Failed to convert start time. Reason: ${startDtTargetZone.invalidReason || 'Unknown'}`);\n    }\n\n    // Format the result back into an ISO string with the correct offset\n    item.json.starttime = startDtTargetZone.toISO();\n    \n    // Add a human-readable version for easier debugging\n    item.json.starttime_readable = startDtTargetZone.toLocaleString(luxon.DateTime.DATETIME_FULL);\n\n    // --- End Time Conversion ---\n    // Parse the original UTC ISO string using Luxon\n    const endDt = luxon.DateTime.fromISO(endTimeUTC, { zone: 'utc' });\n\n    // Convert the DateTime object to the target timezone\n    const endDtTargetZone = endDt.setZone(targetTimeZone);\n\n    // Check if the conversion was valid\n    if (!endDtTargetZone.isValid) {\n      throw new Error(`Failed to convert end time. Reason: ${endDtTargetZone.invalidReason || 'Unknown'}`);\n    }\n\n    // Format the result back into an ISO string with the correct offset\n    item.json.endtime = endDtTargetZone.toISO();\n    \n    // Add a human-readable version for easier debugging\n    item.json.endtime_readable = endDtTargetZone.toLocaleString(luxon.DateTime.DATETIME_FULL);\n\n    // Calculate duration in minutes for reference\n    const durationMinutes = endDtTargetZone.diff(startDtTargetZone, 'minutes').minutes;\n    item.json.duration_minutes = Math.round(durationMinutes);\n\n    // Optionally remove the error flag if conversion was successful this time\n    delete item.json.conversionError;\n    \n    console.log(`Conversion successful: ${item.json.starttime_readable} to ${item.json.endtime_readable} (${item.json.duration_minutes} minutes)`);\n\n  } catch (error) {\n    console.error(`Error converting time for item: ${JSON.stringify(item.json)}. Error: ${error.message}`);\n    // Add/update the error flag to the item's JSON\n    item.json.conversionError = error.message;\n  }\n}\n\n// Return the modified array of items\nreturn items;"
+      },
+      "id": "a55c9176-1879-472c-8a65-3e4e33d57c8d",
+      "name": "Convert time to Asia/Kolkata",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1072,
+        2672
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "bookAppointment",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        48,
+        2688
+      ],
+      "id": "cbd569cb-0120-4c71-9e86-a5935b02d3e5",
+      "name": "bookEvent",
+      "webhookId": "2c029dc8-4d5a-4457-ab1a-56c156f6d9ff"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "932dd430-309b-4d3b-8bf6-768f84fd2dd2",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.results[0].result }}",
+              "rightValue": "=confirmed"
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "id": "23236f6c-1595-4b15-b614-c87b4294bfb4",
+      "name": "If the booking is confirmed then true",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2416,
+        2672
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n    \"results\":[\n        {\n            \"toolCallId\":\"{{ $json.results[0].toolCallId }}\",\n            \"result\":\"available:{{ $json.results[0].result }}\"\n        }\n    ]\n}",
+        "options": {}
+      },
+      "id": "14e3b42c-8d04-4a90-a074-dc860fef2f30",
+      "name": "Respond to Vapi",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        2192,
+        2672
+      ],
+      "typeVersion": 1.1,
+      "alwaysOutputData": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "YOUR_CALENDAR_ID@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Your Calendar"
+        },
+        "start": "={{ $json.starttime }}",
+        "end": "={{ $json.endtime }}",
+        "additionalFields": {
+          "allday": "no",
+          "attendees": [
+            "={{ $json.email }}"
+          ],
+          "conferenceDataUi": {
+            "conferenceDataValues": {
+              "conferenceSolution": "hangoutsMeet"
+            }
+          },
+          "description": "=ERP platform demonstration and business requirements discussion with {{ $('bookEvent').item.json.body.message.toolCallList[0].function.arguments.Name }} and a Your Company ERP specialist",
+          "summary": "=ERP Demo Meeting with {{ $('bookEvent').item.json.body.message.toolCalls[0].function.arguments.Name }}"
+        }
+      },
+      "id": "cb9fae7b-32f3-4646-8c4b-b7424eb743f8",
+      "name": "Create Event",
+      "type": "n8n-nodes-base.googleCalendar",
+      "position": [
+        1248,
+        2672
+      ],
+      "typeVersion": 1.3,
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "YOUR_CALENDAR_CREDENTIAL_ID",
+          "name": "Google Calendar account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "eac930a3-ba65-4b0d-b236-aa167d7edb3f",
+              "name": "toolCallId",
+              "type": "string",
+              "value": "={{ $json.body.message.toolCalls[0].id }}"
+            },
+            {
+              "id": "492186b8-e3a3-4ab9-87f4-45d8cbc38c13",
+              "name": "timeZone",
+              "type": "string",
+              "value": "={{ $json.body.message.toolCalls[0].function.arguments.callerTimezone }}"
+            },
+            {
+              "id": "12aeec42-9414-4d43-8837-1ff747f49305",
+              "name": "name",
+              "type": "string",
+              "value": "={{ $json.body.message.toolCalls[0].function.arguments.Name }}"
+            },
+            {
+              "id": "36673f27-c026-4ad9-81da-ad11e71bbfb6",
+              "name": "email",
+              "type": "string",
+              "value": "={{ $json.body.message.toolCalls[0].function.arguments.email }}"
+            },
+            {
+              "id": "469ddc00-a399-47a5-8c55-97cd3adf4143",
+              "name": "language",
+              "type": "string",
+              "value": "en"
+            },
+            {
+              "id": "b191cd98-f3f7-48b1-a2e0-2c9e248a4983",
+              "name": "notes",
+              "type": "string",
+              "value": "={{ $json.body.message.toolCalls[0].function.arguments.notes || \"\"}}"
+            },
+            {
+              "id": "783cb161-65e4-4829-ac90-5c6c2c55585f",
+              "name": "starttime",
+              "type": "string",
+              "value": "={{ $json.body.message.toolCalls[0].function.arguments.requestedAppointment }}"
+            },
+            {
+              "id": "bfcdade9-14c8-4867-8a22-3865a2bcc116",
+              "name": "endtime",
+              "type": "string",
+              "value": "={{DateTime.fromISO($json.body.message.toolCalls[0].function.arguments.requestedAppointment).plus({minutes: 30}).toISO()}}"
+            },
+            {
+              "id": "26ca39ef-48f5-41ed-990e-40c2a26d6132",
+              "name": "Title",
+              "type": "string",
+              "value": "={{ $json.body.message.toolCalls[0].function.arguments.Name }}'s ERP Demo Meeting "
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5b919d57-c806-4014-b23b-86a7533c5fd8",
+      "name": "Input Arguments from booking tools",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        288,
+        2688
+      ],
+      "typeVersion": 3.3
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5cb05b10-e916-459e-84a2-9c314a859a07",
+              "name": "results[0].toolCallId",
+              "type": "string",
+              "value": "={{ $('Input Arguments from booking tools').item.json.toolCallId }}"
+            },
+            {
+              "id": "552246f9-7afd-404e-9fb3-cb38c7447359",
+              "name": "results[0].result",
+              "type": "string",
+              "value": "=You must provide an email, name and notes to call this tool"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "dfe68a06-fa78-4adb-9cd9-3759aa983738",
+      "name": "Build Error Response Payload",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        896,
+        2928
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "c28b9d53-2505-4a41-9e34-9975858a266c",
+      "name": "Respond with Error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1232,
+        2928
+      ],
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "e0af7f69-0c89-4a02-a49f-dd5a90e31dff",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ ($json.email || \"\").isEmail() }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1159f2ca-13d3-4eed-a83f-e08a23c28e85",
+      "name": "Has all information",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        576,
+        2688
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const escapeStringForJson = (str) => {\n    return str\n        .replace(/\\\\/g, '\\\\\\\\') // Escape backslashes\n        .replace(/\"/g, '\\\\\"')    // Escape double quotes\n        .replace(/\\n/g, '\\\\n')   // Escape newlines\n        .replace(/\\r/g, '\\\\r')   // Escape carriage returns\n        .replace(/\\t/g, '\\\\t');  // Escape tabs\n};\n\n// Escape the notes field\n$input.item.json.notes = escapeStringForJson($input.item.json.notes);\n\nreturn $input.item;\n"
+      },
+      "id": "8f01e39b-cd96-44dd-bb09-4e63a67c474e",
+      "name": "Escape Json",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        848,
+        2672
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2c3894da-7bf7-4a35-95c0-d3d9199dd0ad",
+              "name": "results[0].toolCallId",
+              "type": "string",
+              "value": "={{ $('Input Arguments from booking tools').item.json.toolCallId }}"
+            },
+            {
+              "id": "93e45166-de94-4fa5-9148-2b8d0e4b960c",
+              "name": "results[0].result",
+              "type": "string",
+              "value": "={{ $json.message || $json.status }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0af03144-1504-420e-8641-ee1e9516a2b4",
+      "name": "Error Response",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1856,
+        2848
+      ],
+      "typeVersion": 3.3
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "function replaceValue(value, errorObj) {\n  if (errorObj && errorObj.message && errorObj.message.includes('no_available_users_found_error')) {\n    return \"This time slot is no longer available.\";\n  }\n  return value;\n}\n\n$input.item.json.message = replaceValue($input.item.json.error.description, $input.item.json.error);\n\nreturn $input.item;"
+      },
+      "id": "92f74630-f83a-4ef6-8a39-ca103783559b",
+      "name": "Add Friendly Error",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1632,
+        2848
+      ],
+      "typeVersion": 2
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2c3894da-7bf7-4a35-95c0-d3d9199dd0ad",
+              "name": "results[0].toolCallId",
+              "type": "string",
+              "value": "={{ $('Input Arguments from booking tools').item.json.toolCallId }}"
+            },
+            {
+              "id": "685c67c7-a30b-4bcc-b9ba-827c4b570548",
+              "name": "results[0].result",
+              "type": "string",
+              "value": "={{ $json.status }}"
+            },
+            {
+              "id": "892244ec-e870-4548-806e-180d09676d18",
+              "name": "meetingTime",
+              "value": "={{ $json.startTime }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b8a9b2d3-f88f-4274-ad68-17e2af7e65d3",
+      "name": "Success Response",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1856,
+        2496
+      ],
+      "typeVersion": 3.3
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "05bbc797-b781-489c-ab70-e234fe17eb62",
+              "name": "id",
+              "type": "number",
+              "value": "={{ $json.id }}"
+            },
+            {
+              "id": "4bb68abf-18c8-4445-b446-21667abd95aa",
+              "name": "description",
+              "type": "string",
+              "value": "={{ $json.summary }}"
+            },
+            {
+              "id": "74a98b77-b9fe-40cc-84c8-fc7303c5cfa6",
+              "name": "startTime",
+              "type": "string",
+              "value": "={{ $json.start.dateTime }}"
+            },
+            {
+              "id": "2934d6a7-9e6b-4038-891c-0b05ba18cb21",
+              "name": "endTime",
+              "type": "string",
+              "value": "={{ $json.end.dateTime }}"
+            },
+            {
+              "id": "10f091c8-5e52-40dc-a294-87625be9af99",
+              "name": "status",
+              "type": "string",
+              "value": "={{ $json.status }}"
+            },
+            {
+              "id": "cdc5e1ab-a29b-447f-8343-ff1c1b168717",
+              "name": "Timezone",
+              "type": "string",
+              "value": "={{ $json.end.timeZone }}"
+            },
+            {
+              "id": "f5b6820c-ab4b-496c-9957-f86753243388",
+              "name": "attendees",
+              "type": "array",
+              "value": "={{ $json.attendees }}"
+            },
+            {
+              "id": "b39a06a5-4fbf-4fdf-9d9a-a07dcb37d157",
+              "name": "hangoutLink",
+              "type": "string",
+              "value": "={{ $json.hangoutLink }}"
+            },
+            {
+              "id": "345f49fc-93bc-48b8-9ced-326139a82119",
+              "name": "Title",
+              "type": "string",
+              "value": "={{ $json.summary }}"
+            }
+          ]
+        },
+        "options": {
+          "ignoreConversionErrors": true
+        }
+      },
+      "id": "e5b323dd-9072-48d6-9336-5a9a192d1144",
+      "name": "Booking Payload",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1632,
+        2496
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1f216666-793d-4046-ae7a-81781433b6bd",
+              "leftValue": "={{ $json.available }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1008,
+        1952
+      ],
+      "id": "2b317fab-70c4-4dff-bd50-14c67dd38ed3",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "getSlots",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        48,
+        1952
+      ],
+      "id": "ea7ab79a-af4e-47ee-a300-3c6a2b34cbb4",
+      "name": "getSlots",
+      "webhookId": "6cb318e2-43bc-4730-8c49-6e3c55b1262f"
+    },
+    {
+      "parameters": {
+        "jsCode": "for (const item of items) {\n  const startTime = item.json.startTime;\n  if (new Date(startTime) < new Date()) {\n    item.json.error = \"Cannot book appointments in the past\";\n    item.json.available = false;\n  }\n}\n\nreturn items;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        528,
+        1952
+      ],
+      "id": "96213958-1a9d-4deb-87b9-f4ad52fbced5",
+      "name": "date validation"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n    \"results\":[\n        {\n            \"toolCallId\":\"{{ $('getSlots').item.json.body.message.toolCalls[0].id }}\",\n            \"result\":\"The original time is not available, here are available slots:{{ $json.message }}\"\n        }\n    ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        3312,
+        2192
+      ],
+      "id": "ffc61eb7-c05f-4d25-b4c2-4b154dc13a22",
+      "name": "Response to vapi"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the input data for the first item\nconst inputData = $input.first().json;\nconsole.log(\"Input Data:\", inputData); // Log input for debugging\n\n// Access the message string from the correct path within the input structure.\n// The input comes from the \"Build Response Payload\" node, which structures data under 'results'.\n// Use optional chaining (?.) for safety in case the structure is not as expected.\nlet message = inputData.results?.[0]?.result;\n\n// Check if the message was found and is a string\nif (typeof message !== 'string') {\n    console.error(\"Could not find the message string at inputData.results[0].result or it's not a string. Input:\", inputData);\n    // Return an object with an empty message or an error indicator\n    return { message: \"\" }; // Or potentially throw an error: throw new Error(\"Input message not found or not a string\");\n}\n\n// Start cleaning the message string\n\n// 1. Replace the literal string \"\\\\n\" (backslash followed by n) with a space.\n// This handles the newline representation seen in the input screenshot.\nlet cleanedMessage = message.replace(/\\\\n/g, ' ');\n\n// 2. Remove spaces immediately surrounding colons (e.g., \"Times : \" becomes \"Times:\").\ncleanedMessage = cleanedMessage.replace(/\\s*:\\s*/g, ':');\n\n// 3. Replace sequences of multiple whitespace characters (including spaces from replaced \\n)\n// with a single space. Then, trim any leading or trailing whitespace from the result.\ncleanedMessage = cleanedMessage.replace(/\\s+/g, ' ').trim();\n\n// Create the final output JSON object containing the cleaned message.\nconst output = {\n    message: cleanedMessage\n};\n\n// Return the output object. This will be the output of the Code node.\nreturn output;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3088,
+        2192
+      ],
+      "id": "8b8e608e-c3e1-457f-9754-c79d294be803",
+      "name": "Convert into JSON format for vapi"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2137a653-8e64-43c3-b05a-518ce58d52d6",
+              "name": "=results[0].toolCallId",
+              "value": "={{ $('Input fields').item.json.toolCallId }}",
+              "type": "string"
+            },
+            {
+              "id": "325d4458-4ace-4e56-9ed6-df13da187351",
+              "name": "results[0].result",
+              "value": "={{ $json.availableTimes }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2848,
+        2192
+      ],
+      "id": "d794440b-c24a-4f50-be56-7d3d2d10924d",
+      "name": "Build response Playload"
+    },
+    {
+      "parameters": {
+        "jsCode": "function formatTimeSlot(dateString) {\n  // Format options for date/time with Asia/Kolkata timezone\n  const options = {\n    timeZone: 'Asia/Kolkata',\n    weekday: 'long',\n    month: 'long',\n    day: 'numeric',\n    hour: 'numeric',\n    minute: 'numeric',\n    hour12: true\n  };\n\n  // Create a formatter with timezone support\n  const dateFormatter = new Intl.DateTimeFormat('en-IN', options);\n  \n  // Format the date/time string\n  return dateFormatter.format(new Date(dateString));\n}\n\n// Process each slot and add formatted time strings to the result\nconst slots = $input.item.json.data.slots;\nconst formattedSlots = slots.map(slot => formatTimeSlot(slot.start));\n\n// Attach formatted results to the output\n$input.item.json.data.slots = formattedSlots;\n\nreturn $input.item;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2672,
+        2192
+      ],
+      "id": "20903ed9-87bb-4bdb-8468-61bd26b2e4d0",
+      "name": "enrich date"
+    },
+    {
+      "parameters": {
+        "jsCode": "const flattenSlots = (data) => {\n  // If data is missing or empty, return an empty array of slots\n  if (!data) {\n    return { slots: [] };\n  }\n\n  // data is an object whose keys are dates\n  // each date key has an array of slot objects\n  // we just need to flatten them all into one array\n  const flattened = Object.values(data).flat();  // merges all arrays from each date key\n\n  // Return a new object with a single 'slots' array\n  return { slots: flattened };\n};\n\n// Then assign the flattened slots back to $input.item.json.data\n$input.item.json.data = flattenSlots($input.item.json.data);\nreturn $input.item;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2432,
+        2192
+      ],
+      "id": "46a00a7d-00f7-41ae-bfdf-1b0bba17ae16",
+      "name": "Flatten slots"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Complete Calendar Availability System\n// Calendar Availability System\n\n// Input data\nconst inputData = $input.all()[0].json.response || [];\n\n// Define business hours in IST (India Standard Time)\nconst WORKDAY_START = 9; // 10 AM\nconst WORKDAY_END = 17;   // 5 PM\nconst SLOT_DURATION = 30; // 30 minutes\n\n// UTC offset for IST is +5:30\nconst IST_OFFSET_HOURS = 5;\nconst IST_OFFSET_MINUTES = 30;\n\n// Helper function to convert UTC to IST hours\nconst utcToIstHours = (utcHours) => {\n  let istHours = utcHours + IST_OFFSET_HOURS;\n  if (istHours >= 24) istHours -= 24;\n  return istHours;\n};\n\n// Helper function to convert IST to UTC hours\nconst istToUtcHours = (istHours) => {\n  let utcHours = istHours - IST_OFFSET_HOURS;\n  if (utcHours < 0) utcHours += 24;\n  return utcHours;\n};\n\n// Debug info\nconsole.log('Business hours (IST):', `${WORKDAY_START}:00 - ${WORKDAY_END}:00`);\nconsole.log('Business hours (UTC):', `${istToUtcHours(WORKDAY_START)}:${IST_OFFSET_MINUTES} - ${istToUtcHours(WORKDAY_END)}:${IST_OFFSET_MINUTES}`);\n\n// Helper function to parse various date-time formats\nconst parseDateTime = (dateTimeStr) => {\n  try {\n    // If it's already an ISO string with T separator (2025-07-14T10:00:00+05:30)\n    if (typeof dateTimeStr === 'string' && dateTimeStr.includes('T')) {\n      return new Date(dateTimeStr);\n    }\n    \n    // If it's a formatted string like \"Monday, July 14, 2025, 10:00:00 GMT+5:30\"\n    if (typeof dateTimeStr === 'string' && dateTimeStr.includes(', ')) {\n      // Split into parts for better parsing\n      const parts = dateTimeStr.split(', ');\n      \n      // Try to handle different formats\n      if (parts.length >= 3) {\n        const datePart = parts.slice(0, 3).join(', ');\n        let timePart, offsetPart;\n        \n        if (parts[3].includes('GMT')) {\n          timePart = parts[3].split(' GMT')[0];\n          offsetPart = parts[3].includes('GMT') ? parts[3].split('GMT')[1] : '+0000';\n        } else {\n          timePart = parts[3];\n          offsetPart = '+0530'; // Default to IST if no timezone specified\n        }\n        \n        // Combine into ISO-like string\n        try {\n          const dateTimeIso = new Date(`${datePart} ${timePart} GMT${offsetPart}`);\n          return dateTimeIso;\n        } catch (e) {\n          console.error(\"Inner parse error:\", e);\n        }\n      }\n    }\n    \n    // If it's an object with start/end properties\n    if (dateTimeStr && typeof dateTimeStr === 'object') {\n      if (dateTimeStr.start && dateTimeStr.end) {\n        return {\n          start: parseDateTime(dateTimeStr.start),\n          end: parseDateTime(dateTimeStr.end)\n        };\n      } else if (dateTimeStr instanceof Date) {\n        return dateTimeStr;\n      }\n    }\n    \n    // Fallback - try direct parsing\n    return new Date(dateTimeStr);\n  } catch (e) {\n    console.error(\"Failed to parse date:\", dateTimeStr, e);\n    return null;\n  }\n};\n\n// Function to generate time slots (30-minute intervals)\nconst generateTimeSlots = (startTime, endTime) => {\n  const slots = [];\n  let current = new Date(startTime);\n  \n  while (current < endTime) {\n    slots.push(new Date(current));\n    // Add 30 minutes\n    current = new Date(current.getTime() + (SLOT_DURATION * 60 * 1000));\n  }\n  \n  return slots;\n};\n\n// Format time in 12-hour format with AM/PM\nconst formatTime = (date) => {\n  return date.toLocaleTimeString('en-US', {\n    timeZone: 'Asia/Kolkata', // IST timezone\n    hour: '2-digit',\n    minute: '2-digit',\n    hour12: true\n  }).toLowerCase();\n};\n\n// Format date in readable format\nconst formatDate = (date) => {\n  return date.toLocaleDateString('en-US', {\n    timeZone: 'Asia/Kolkata', // IST timezone\n    weekday: 'long',\n    month: 'long',\n    day: 'numeric',\n    year: 'numeric'\n  });\n};\n\n// Group existing appointments by date\nconst bookedSlotsByDate = {};\n\n// Process all appointments from the input data\ninputData.forEach((item, index) => {\n  try {\n    const startTime = parseDateTime(item.start || item.startTime);\n    const endTime = parseDateTime(item.end || item.endTime);\n    \n    if (!startTime || !endTime) {\n      console.log(`Skipping invalid appointment #${index}:`, item);\n      return;\n    }\n    \n    // Get date string to use as key (YYYY-MM-DD)\n    const dateKey = startTime.toISOString().split('T')[0];\n    \n    if (!bookedSlotsByDate[dateKey]) {\n      bookedSlotsByDate[dateKey] = [];\n    }\n    \n    // Add this appointment to the booked slots for this date\n    bookedSlotsByDate[dateKey].push({\n      start: startTime,\n      end: endTime,\n      summary: item.name || item.summary || 'Booked'\n    });\n    \n    console.log(`Processed appointment #${index} for ${dateKey}:`, \n      `${startTime.toISOString()} - ${endTime.toISOString()}`);\n    \n  } catch (error) {\n    console.error(`Error processing appointment #${index}:`, item, error);\n  }\n});\n\n// Calculate available time slots for next 7 days\nconst availabilityByDate = {};\nconst now = new Date();\nconst startDate = new Date(now);\nstartDate.setHours(0, 0, 0, 0); // Start from today\n\n// Generate available slots for the next 7 days\nfor (let i = 0; i < 7; i++) {\n  const currentDate = new Date(startDate);\n  currentDate.setDate(currentDate.getDate() + i);\n  \n  // Skip weekends (0 = Sunday, 6 = Saturday)\n  const dayOfWeek = currentDate.getDay();\n  if (dayOfWeek === 0 || dayOfWeek === 6) {\n    console.log(`Skipping weekend day: ${currentDate.toDateString()}`);\n    continue;\n  }\n  \n  const dateKey = currentDate.toISOString().split('T')[0];\n  \n  // Create date objects for start and end of business hours in the correct timezone\n  const workdayStart = new Date(currentDate);\n  // Convert IST business hours to UTC for internal calculations\n  const workdayStartUtcHours = istToUtcHours(WORKDAY_START);\n  workdayStart.setHours(workdayStartUtcHours, IST_OFFSET_MINUTES, 0, 0);\n  \n  const workdayEnd = new Date(currentDate);\n  const workdayEndUtcHours = istToUtcHours(WORKDAY_END);\n  workdayEnd.setHours(workdayEndUtcHours, IST_OFFSET_MINUTES, 0, 0);\n  \n  console.log(`Date: ${dateKey}, Business hours (UTC):`, \n    `${workdayStart.toISOString()} - ${workdayEnd.toISOString()}`);\n  \n  // Get booked slots for this date\n  const bookedSlots = bookedSlotsByDate[dateKey] || [];\n  \n  // Sort booked slots by start time\n  bookedSlots.sort((a, b) => a.start - b.start);\n  \n  // Find available time slots\n  let availableSlots = [];\n  let lastEndTime = new Date(workdayStart);\n  \n  // Check each booked slot and find gaps between them\n  for (const bookedSlot of bookedSlots) {\n    if (bookedSlot.start > lastEndTime) {\n      // There's a gap between the last end time and this booking\n      console.log(`Found gap: ${lastEndTime.toISOString()} - ${bookedSlot.start.toISOString()}`);\n      const slotsInGap = generateTimeSlots(lastEndTime, bookedSlot.start);\n      availableSlots = availableSlots.concat(slotsInGap);\n    }\n    // Update last end time\n    lastEndTime = new Date(Math.max(lastEndTime.getTime(), bookedSlot.end.getTime()));\n  }\n  \n  // Check if there's time after the last booking until end of business hours\n  if (lastEndTime < workdayEnd) {\n    console.log(`Found gap after last booking: ${lastEndTime.toISOString()} - ${workdayEnd.toISOString()}`);\n    const slotsAfterLastBooking = generateTimeSlots(lastEndTime, workdayEnd);\n    availableSlots = availableSlots.concat(slotsAfterLastBooking);\n  }\n  \n  // Filter out any slots that are in the past\n  availableSlots = availableSlots.filter(slot => slot > now);\n  \n  if (availableSlots.length > 0) {\n    // Find continuous available ranges (wide open ranges)\n    const wideOpenRanges = [];\n    let rangeStart = availableSlots[0];\n    let prevSlot = availableSlots[0];\n    \n    for (let j = 1; j < availableSlots.length; j++) {\n      const currentSlot = availableSlots[j];\n      const expectedNextTime = new Date(prevSlot.getTime() + (SLOT_DURATION * 60 * 1000));\n      \n      // If there's a gap, end the current range\n      if (currentSlot.getTime() !== expectedNextTime.getTime()) {\n        if (prevSlot.getTime() - rangeStart.getTime() >= (SLOT_DURATION * 2 * 60 * 1000)) {\n          // Range has at least 3 slots (1 hour)\n          wideOpenRanges.push({\n            start: rangeStart,\n            end: prevSlot\n          });\n        }\n        rangeStart = currentSlot;\n      }\n      \n      prevSlot = currentSlot;\n    }\n    \n    // Check the last range\n    if (prevSlot.getTime() - rangeStart.getTime() >= (SLOT_DURATION * 2 * 60 * 1000)) {\n      wideOpenRanges.push({\n        start: rangeStart,\n        end: prevSlot\n      });\n    }\n    \n    availabilityByDate[dateKey] = {\n      date: formatDate(currentDate),\n      availableSlots: availableSlots.map(slot => formatTime(slot)),\n      wideOpenRanges: wideOpenRanges.map(range => \n        `${formatTime(range.start)} to ${formatTime(range.end)}`)\n    };\n  } else {\n    console.log(`No available slots for ${dateKey}`);\n  }\n}\n\n// Format output as plaintext\nconst availableTimes = Object.values(availabilityByDate)\n  .map(({ date, availableSlots, wideOpenRanges }) => {\n    const times = availableSlots.map((time) => `- ${time}`).join('\\n');\n    const ranges = wideOpenRanges.length > 0\n      ? `Wide Open Ranges:\\n${wideOpenRanges.map((range) => `- ${range}`).join('\\n')}`\n      : \"Wide Open Ranges: None\";\n\n    return `### ${date}\\nAvailable Start Times:\\n${times}\\n\\n${ranges}`;\n  })\n  .join('\\n\\n');\n\n// Set the output\nreturn {\n  json: {\n    availableTimes,\n    debug: {\n      workdayStartIST: WORKDAY_START,\n      workdayEndIST: WORKDAY_END,\n      workdayStartUTC: istToUtcHours(WORKDAY_START),\n      workdayEndUTC: istToUtcHours(WORKDAY_END),\n      inputDataCount: inputData.length,\n      bookedSlotsByDate,\n      availabilityByDate,\n      currentTimeUTC: new Date().toISOString(),\n      currentTimeIST: new Date().toLocaleString('en-US', {timeZone: 'Asia/Kolkata'})\n    }\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2208,
+        2192
+      ],
+      "id": "4e73cfd5-fff8-4d0f-ac04-7a0572a1d05b",
+      "name": "Available start time and range"
+    },
+    {
+      "parameters": {
+        "operation": "sort",
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "fieldName": "sort"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6435348a-83d3-4eea-9d40-6c8807cacd8e",
+      "name": "Sort",
+      "type": "n8n-nodes-base.itemLists",
+      "position": [
+        1792,
+        2192
+      ],
+      "typeVersion": 3
+    },
+    {
+      "parameters": {
+        "operation": "concatenateItems",
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "response",
+        "include": "allFieldsExcept",
+        "fieldsToExclude": "sort",
+        "options": {}
+      },
+      "id": "76476c22-2bd7-4825-9e69-27c8ccb9a351",
+      "name": "Response Format",
+      "type": "n8n-nodes-base.itemLists",
+      "position": [
+        2016,
+        2192
+      ],
+      "typeVersion": 3
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "YOUR_CALENDAR_ID@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Your Calendar"
+        },
+        "timeMin": "={{ DateTime.now().toISO() }}",
+        "timeMax": "={{ DateTime.now().plus({weeks: 1}).toISO() }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        1312,
+        2192
+      ],
+      "id": "90efda31-1a2f-4544-97c5-2cbdbbb2e8ba",
+      "name": "Get all events",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "YOUR_CALENDAR_CREDENTIAL_ID",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "calendar",
+        "calendar": {
+          "__rl": true,
+          "value": "YOUR_CALENDAR_ID@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "Your Calendar"
+        },
+        "timeMin": "={{ $json.startTime }}",
+        "timeMax": "={{ $json.endTime }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        768,
+        1952
+      ],
+      "id": "c5b1c227-0e32-4609-89a1-01ea4e6fd9b9",
+      "name": "Check availability",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "YOUR_CALENDAR_CREDENTIAL_ID",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d3b84284-a408-4ee8-9f22-c3b75e3d527f",
+              "name": "start",
+              "value": "={{ DateTime.fromISO($json.end.dateTime).toLocaleString(DateTime.DATE_HUGE) }}, {{ DateTime.fromISO($json.start.dateTime).toLocaleString(DateTime.TIME_24_WITH_SHORT_OFFSET) }}",
+              "type": "string"
+            },
+            {
+              "id": "fbf18f7d-4a65-47cc-8f66-7f7ebf71e71f",
+              "name": "end",
+              "value": "={{ DateTime.fromISO($json.start.dateTime).toLocaleString(DateTime.DATE_HUGE) }}, {{ DateTime.fromISO($json.end.dateTime).toLocaleString(DateTime.TIME_24_WITH_SHORT_OFFSET) }}",
+              "type": "string"
+            },
+            {
+              "id": "9c2773d8-802b-4e07-9247-327f4ab2c3d1",
+              "name": "sort",
+              "value": "={{ $json.start.dateTime }}",
+              "type": "string"
+            },
+            {
+              "id": "ed7ab5db-d627-4467-a506-d190298a9d4e",
+              "name": "name",
+              "value": "={{ $json.summary }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1536,
+        2192
+      ],
+      "id": "fbcb78f7-5698-4cdc-a984-13a3ec67b3ca",
+      "name": "Extract start, end"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n    \"results\":[\n        {\n            \"toolCallId\":\"{{ $('getSlots').item.json.body.message.toolCalls[0].id }}\",\n            \"result\":\"available:{{ $json.available }}\"\n        }\n    ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1536,
+        1936
+      ],
+      "id": "7f69ca58-2cbb-4fb3-ba9c-91a196a7b03d",
+      "name": "Response"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "629fae25-7dc6-446d-957c-2693e3bddc9e",
+              "name": "CustomerTimezone",
+              "value": "={{ $json.body.message.toolCalls[0].function.arguments.callerTimezone }}",
+              "type": "string"
+            },
+            {
+              "id": "894b061a-9523-49ce-82ea-e9e677d10b92",
+              "name": "startTime",
+              "value": "={{ $json.body.message.toolCalls[0].function.arguments.requestedAppointment }}",
+              "type": "string"
+            },
+            {
+              "id": "6ea08294-ed36-4894-9ac7-52d2047e33e0",
+              "name": "endTime",
+              "value": "={{ DateTime.fromISO($json.body.message.toolCalls[0].function.arguments.requestedAppointment).plus({ minutes: 30 }).toISO() }}",
+              "type": "string"
+            },
+            {
+              "id": "20f98006-3124-4103-82e2-acb47e58c916",
+              "name": "toolCallId",
+              "value": "={{ $json.body.message.call.id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        288,
+        1952
+      ],
+      "id": "78ed5b20-106b-459a-9228-6e87b6f71ca3",
+      "name": "Input fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c5e500b4-a964-4953-ba6a-57adec581da7",
+              "name": "body.message.toolCalls[0].id",
+              "value": "={{ $('Input fields').item.json.toolCallId }}",
+              "type": "string"
+            },
+            {
+              "id": "9351d7fd-f991-4fc9-8b93-f3d82f4bea82",
+              "name": "available",
+              "value": "={{ $json.available }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1312,
+        1936
+      ],
+      "id": "e2c76daa-8d18-4551-8330-6670d6b5a5e3",
+      "name": "openSlots TRUE"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "a2a15fdf-ea46-4617-bb56-58adddea3482",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        112,
+        1248
+      ],
+      "id": "6cb138e1-5f28-443e-9859-b836b99834d5",
+      "name": "Webhook",
+      "webhookId": "a2a15fdf-ea46-4617-bb56-58adddea3482"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Get the current date and time in IST\nconst now = new Date();\n\n// IST offset (UTC+5:30) in milliseconds\nconst istOffsetMs = 5.5 * 60 * 60 * 1000;\n\n// Calculate IST time\nconst istTime = new Date(now.getTime() + istOffsetMs);\n\n// Format IST time as YYYY-MM-DD HH:MM:SS\nconst year = istTime.getFullYear();\nconst month = String(istTime.getMonth() + 1).padStart(2, '0');\nconst day = String(istTime.getDate()).padStart(2, '0');\nconst hours = String(istTime.getHours()).padStart(2, '0');\nconst minutes = String(istTime.getMinutes()).padStart(2, '0');\nconst seconds = String(istTime.getSeconds()).padStart(2, '0');\n\nconst formattedDateTime = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;\n\n// Return the formatted IST time\nreturn [\n  {\n    json: {\n      currentTimeIST: formattedDateTime\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2448,
+        256
+      ],
+      "id": "09ca2897-7571-46be-8050-ce97b8c5f712",
+      "name": "Changing  time format to IST"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d7493b1d-8dcb-409a-bf10-b1d959e50be0",
+              "leftValue": "={{$json.detectedIntent}}",
+              "rightValue": "callback",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1328,
+        1456
+      ],
+      "id": "96c1ecb0-7f13-4cb5-ae45-3585b38bd12b",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "AI Cold Call Agent",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1189142611,
+          "mode": "list",
+          "cachedResultName": "AI Cold Call",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=1189142611"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ScheduledDate": "={{ $json.extractedScheduledDate }}",
+            "ScheduledTime": "={{ $json.extractedScheduledTime }}",
+            "call ID": "={{ $('successEvaluation').item.json.callId }}",
+            "CallStatus": "Scheduled",
+            "CallSummary": "={{ $('successEvaluation').item.json.callSummary }}",
+            "recordingUrl": "={{ $('successEvaluation').item.json.recordingUrl }}",
+            "CallAnalyticsJSON": "={{ $('successEvaluation').item.json.callTranscript }}"
+          },
+          "matchingColumns": [
+            "call ID"
+          ],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Industry",
+              "displayName": "Industry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Address",
+              "displayName": "Address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CallStatus",
+              "displayName": "CallStatus",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CompanyInfo",
+              "displayName": "CompanyInfo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ScheduledDate",
+              "displayName": "ScheduledDate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ScheduledTime",
+              "displayName": "ScheduledTime",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CallSummary",
+              "displayName": "CallSummary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "recordingUrl",
+              "displayName": "recordingUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "LastCallDate",
+              "displayName": "LastCallDate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "call ID",
+              "displayName": "call ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "CallAnalyticsJSON",
+              "displayName": "CallAnalyticsJSON",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        2432,
+        1232
+      ],
+      "id": "2a469c18-511d-4951-b751-5716a0fa43bb",
+      "name": "Updating Scheduled Calls",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nreturn items.map(item => {\n  try {\n    const originalData = item.json;\n    \n    // Get current IST time with better error handling\n    const now = new Date();\n    const istOffset = 5.5 * 60; // in minutes\n    const utcTime = now.getTime() + (now.getTimezoneOffset() * 60000);\n    const istTime = new Date(utcTime + (istOffset * 60000));\n    \n    // Add 1 hour to the current IST time\n    const newScheduledDateTime = new Date(istTime.getTime() + (60 * 60 * 1000));\n    \n    // Format for Google Sheets\n    const newScheduledDate = newScheduledDateTime.getFullYear() + '-'\n      + String(newScheduledDateTime.getMonth() + 1).padStart(2, '0') + '-'\n      + String(newScheduledDateTime.getDate()).padStart(2, '0');\n    \n    const newScheduledTime = String(newScheduledDateTime.getHours()).padStart(2, '0') + ':'\n      + String(newScheduledDateTime.getMinutes()).padStart(2, '0') + ':'\n      + '00';\n    \n    return {\n      json: {\n        ...originalData,\n        newScheduledDate: newScheduledDate,\n        newScheduledTime: newScheduledTime,\n        newCallStatus: 'Pending Recall',\n        rescheduleReason: originalData.endedReason || originalData.failedReason || 'No response',\n        originalCallTime: istTime.toISOString()\n      }\n    };\n  } catch (error) {\n    console.error('Error calculating new scheduled time:', error);\n    return {\n      json: {\n        ...item.json,\n        newScheduledDate: null,\n        newScheduledTime: null,\n        newCallStatus: 'Error',\n        rescheduleError: error.message\n      }\n    };\n  }\n});\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        848,
+        1008
+      ],
+      "id": "f223a2b2-2d20-430a-89f6-b1c9915150be",
+      "name": "Scheduling \"Failed Calls\""
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\n\n// Safely access nested property using optional chaining\nconst successEvaluation = input?.originalData?.costBreakdown?.analysisCostBreakdown?.successEvaluation;\n\nif (successEvaluation) {\n  return [\n    {\n      json: input\n    }\n  ];\n} else {\n  // If successEvaluation is falsy or any property is missing, return an empty array\n  return [];\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        816,
+        1456
+      ],
+      "id": "c0a59f09-dbec-47c8-9f29-d0cdf78a73fd",
+      "name": "successEvaluation"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8513b34c-968f-47b8-93b3-4d3960b11ddb",
+              "leftValue": "={{ $json.extractedScheduledDate }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "48858d2f-45b0-4651-b57f-f487b6022f82",
+              "leftValue": "={{ $json.extractedScheduledTime }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "57ccd973-b011-4fa1-b9a6-ba10d71ef18a",
+              "leftValue": "={{ $json.callWasAnsweredAndScheduled }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2176,
+        1248
+      ],
+      "id": "e3bb9021-d800-445b-bc53-cf8f579354ca",
+      "name": "Is Time Extraction successfull"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nfunction normalizeTime(text) {\n    // Get current time in IST\n    const now = new Date();\n    const istNow = new Date(now.getTime() + (5.5 * 60 * 60 * 1000)); // Add 5:30 hours to UTC\n    \n    // Create result date starting from IST current time\n    let result = new Date(istNow);\n\n    const lower = text.toLowerCase().trim();\n    \n    console.log(\"normalizeTime input text:\", text);\n    console.log(\"Current IST time:\", istNow.toISOString());\n\n    // Working Hours Constants\n    const workingHoursStart = 10; // 10 AM\n    const workingHoursEnd = 18;   // 6 PM\n\n    // 1. Determine Base Date\n    let isTomorrow = false;\n    let isNextWeek = false;\n\n    if (lower.includes(\"tomorrow\")) {\n        result.setUTCDate(result.getUTCDate() + 1);\n        isTomorrow = true;\n    } else if (lower.includes(\"next week\")) {\n        result.setUTCDate(result.getUTCDate() + 7);\n        isNextWeek = true;\n    }\n\n    // 2. Enhanced Time Parsing with better regex\n    const timePatterns = [\n        // Matches: \"2 pm\", \"2pm\", \"2 PM\", \"14:30\", \"2:30 pm\", etc.\n        /\\b(\\d{1,2})(?::(\\d{2}))?\\s*(am|pm|AM|PM)\\b/,\n        // Matches: \"2 o'clock\", \"14 o'clock\"\n        /\\b(\\d{1,2})\\s*o'?clock\\b/,\n        // Matches: 24-hour format \"14:30\", \"09:15\"\n        /\\b(\\d{1,2}):(\\d{2})\\b/,\n        // Matches: just numbers that could be hours \"2\", \"14\"\n        /\\b(\\d{1,2})\\b/\n    ];\n\n    let timeFound = false;\n    let hour = null;\n    let minutes = 0;\n    let isAM = false;\n    let isPM = false;\n\n    // Try each pattern\n    for (const pattern of timePatterns) {\n        const match = lower.match(pattern);\n        if (match) {\n            hour = parseInt(match[1], 10);\n            minutes = match[2] ? parseInt(match[2], 10) : 0;\n            \n            // Check for AM/PM\n            if (match[3]) {\n                const ampm = match[3].toLowerCase();\n                isAM = ampm === 'am';\n                isPM = ampm === 'pm';\n            }\n            \n            timeFound = true;\n            console.log(\"Time match found:\", match, \"Hour:\", hour, \"Minutes:\", minutes, \"AM:\", isAM, \"PM:\", isPM);\n            break;\n        }\n    }\n\n    if (timeFound && hour !== null) {\n        // Handle 12-hour to 24-hour conversion\n        if (isPM && hour !== 12) {\n            hour += 12;\n        } else if (isAM && hour === 12) {\n            hour = 0; // 12 AM = midnight\n        }\n\n        // If no AM/PM specified, use intelligent inference\n        if (!isAM && !isPM) {\n            const currentHour = result.getUTCHours();\n            \n            // For ambiguous times, prefer PM for afternoon/evening context\n            if (hour >= 1 && hour <= 11) {\n                // If it's tomorrow/next week, or current time suggests PM\n                if (isTomorrow || isNextWeek || currentHour >= 12) {\n                    // Prefer PM unless it would make the time invalid or unreasonable\n                    if (hour + 12 <= 23) {\n                        hour += 12;\n                    }\n                }\n                // For times like \"2\" when it's currently afternoon, assume PM\n                else if (currentHour >= 12 && hour <= 6) {\n                    hour += 12;\n                }\n            }\n        }\n\n        // Set the parsed time (using UTC methods to avoid timezone issues)\n        if (hour >= 0 && hour <= 23 && minutes >= 0 && minutes <= 59) {\n            result.setUTCHours(hour, minutes, 0, 0);\n        }\n\n    } else {\n        // Handle relative times\n        if (lower.includes(\"after an hour\") || lower.includes(\"in an hour\") || lower.includes(\"call back after an hour\")) {\n            result.setUTCHours(result.getUTCHours() + 1);\n        } else if (lower.includes(\"after 30 minutes\") || lower.includes(\"in 30 minutes\")) {\n            result.setUTCMinutes(result.getUTCMinutes() + 30);\n        } else if (lower.includes(\"after\") && lower.includes(\"minutes\")) {\n            // Extract number of minutes\n            const minutesMatch = lower.match(/after\\s+(\\d+)\\s+minutes/);\n            if (minutesMatch) {\n                const mins = parseInt(minutesMatch[1], 10);\n                result.setUTCMinutes(result.getUTCMinutes() + mins);\n            }\n        } else if (lower.includes(\"in\") && lower.includes(\"minutes\")) {\n            // Extract number of minutes\n            const minutesMatch = lower.match(/in\\s+(\\d+)\\s+minutes/);\n            if (minutesMatch) {\n                const mins = parseInt(minutesMatch[1], 10);\n                result.setUTCMinutes(result.getUTCMinutes() + mins);\n            }\n        } else if (isTomorrow || isNextWeek) {\n            // Default to 10 AM for tomorrow/next week\n            result.setUTCHours(workingHoursStart, 0, 0, 0);\n        } else {\n            // Default: 1 hour from now\n            result.setUTCHours(result.getUTCHours() + 1);\n        }\n    }\n\n    // Apply Working Hours Constraint\n    let finalHour = result.getUTCHours();\n    let finalMinutes = result.getUTCMinutes();\n\n    // Adjust if outside working hours\n    if (finalHour < workingHoursStart) {\n        result.setUTCHours(workingHoursStart, 0, 0, 0);\n    } else if (finalHour > workingHoursEnd || (finalHour === workingHoursEnd && finalMinutes > 0)) {\n        result.setUTCDate(result.getUTCDate() + 1);\n        result.setUTCHours(workingHoursStart, 0, 0, 0);\n    }\n\n    // Convert back to proper timezone for output\n    const finalResult = new Date(result.getTime() - (5.5 * 60 * 60 * 1000));\n    \n    console.log(\"Final IST result:\", result.toISOString());\n    console.log(\"Final UTC result:\", finalResult.toISOString());\n    \n    return finalResult;\n}\n\n// Additional helper function to format IST time properly\nfunction formatISTTime(date) {\n    const istDate = new Date(date.getTime() + (5.5 * 60 * 60 * 1000));\n    return {\n        date: istDate.toISOString().split('T')[0], // YYYY-MM-DD\n        time: istDate.toTimeString().slice(0, 5), // HH:MM\n        readable: istDate.toLocaleString('en-IN', { \n            timeZone: 'UTC', // Use UTC since we already adjusted\n            weekday: 'short', \n            year: 'numeric', \n            month: 'short', \n            day: 'numeric', \n            hour: '2-digit', \n            minute: '2-digit' \n        })\n    };\n}\n\nreturn items.map(item => {\n    const transcript = (item.json.callTranscript || '').toLowerCase();\n    const summary = (item.json.callSummary || '').toLowerCase();\n    const text = transcript + ' ' + summary;\n\n    const extractedDateTime = normalizeTime(text);\n    const formattedIST = formatISTTime(extractedDateTime);\n\n    return {\n        json: {\n            ...item.json,\n            extractedScheduledDate: formattedIST.date,\n            extractedScheduledTime: formattedIST.time,\n            readableIST: formattedIST.readable,\n            extractedMeetingTime: extractedDateTime.toISOString(),\n            callWasAnsweredAndScheduled: true\n        }\n    };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1888,
+        1248
+      ],
+      "id": "2beb1ae2-a50f-48b1-bb5e-b6bcdac617ef",
+      "name": "Parse Schedule time from summary"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "AI Cold Call Agent",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1189142611,
+          "mode": "list",
+          "cachedResultName": "AI Cold Call",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=1189142611"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "CallStatus": "Pending Recall",
+            "CallSummary": "={{ $json.endedReason }}",
+            "call ID": "={{ $json.callId }}",
+            "ScheduledDate": "={{ $json.newScheduledDate }}",
+            "ScheduledTime": "={{ $json.newScheduledTime }}"
+          },
+          "matchingColumns": [
+            "call ID"
+          ],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Industry",
+              "displayName": "Industry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Address",
+              "displayName": "Address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CallStatus",
+              "displayName": "CallStatus",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CompanyInfo",
+              "displayName": "CompanyInfo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "ScheduledDate",
+              "displayName": "ScheduledDate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ScheduledTime",
+              "displayName": "ScheduledTime",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CallSummary",
+              "displayName": "CallSummary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "recordingUrl",
+              "displayName": "recordingUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "LastCallDate",
+              "displayName": "LastCallDate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "call ID",
+              "displayName": "call ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "CallAnalyticsJSON",
+              "displayName": "CallAnalyticsJSON",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        1088,
+        1008
+      ],
+      "id": "1b003363-82d9-4cdf-a85f-a41901cfe80d",
+      "name": "Pending Recall for Failed Calls",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "aaf528f7-162c-4f04-8cd7-4fbc94c4b4a2",
+              "leftValue": "={{ $json.endedReason }}",
+              "rightValue": "customer-did-not-answer",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "d4e73421-bd88-4571-b945-ccc12604f9c6",
+              "leftValue": "={{ $json.endedReason }}",
+              "rightValue": "customer-busy",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "bd37d659-4dad-492f-adf3-f66baab5969e",
+              "leftValue": "={{ $json.endedReason }}",
+              "rightValue": "busy",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        528,
+        1248
+      ],
+      "id": "2a4e8f3f-837c-443b-86a0-28dda75ba30a",
+      "name": "Filter Failed and Answered Calls"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nreturn items\n  .filter(item => {\n    // Filter for items that have a message payload, accommodating test and live structures\n    try {\n      return item?.json?.body?.message || item?.json?.body?.body?.message || item?.json?.message;\n    } catch (error) {\n      console.log('Error filtering webhook data:', error);\n      return false;\n    }\n  })\n  .map(item => {try {\n    // Handle test's body.body.message, live body.message, and direct message structures\n    const webhookData = item.json.body?.body?.message || item.json.body?.message || item.json.message || item.json;\n    const call = webhookData.call || {};\n    const summary = webhookData.summary || webhookData.callSummary || 'N/A';\n    const transcript = webhookData.transcript || webhookData.callTranscript || 'N/A';\n    const recordingUrl = webhookData.recordingUrl || 'N/A';\n    const callId = call.id || webhookData.callId || 'Unknown';\n    const customerNumber = call.customer?.number || webhookData.phoneNumber || 'Unknown';\n    \n    // Enhanced reason detection\n    const endedReason = call.endedReason || webhookData.endedReason || null;\n    const failedReason = webhookData.type === 'call-failed' ? (webhookData.reason || webhookData.failedReason) : null;\n    const callType = webhookData.type || (call.status ? 'call-ended' : 'unknown');\n    return {\n      json: {\n        callId: callId,\n        phoneNumber: customerNumber,\n        callSummary: summary,\n        callTranscript: transcript,\n        recordingUrl: recordingUrl,\n        endedReason: endedReason,\n        failedReason: failedReason,\n        callType: callType,\n        originalData: webhookData \n          // Keep original for debugging\n          }\n    };\n  } catch (error) {      console.error('Error processing webhook item:', error);\n                   return {\n                     json: {\n                       callId: 'Error',\n                       phoneNumber: 'Error',\n                       callSummary: 'Processing Error: ' + error.message,\n                       callTranscript: 'N/A',\n                       recordingUrl: 'N/A',\n                       endedReason: null,                              failedReason: error.message,\n                       callType: 'error'\n                     }\n                   };\n                  }\n               });\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        336,
+        1248
+      ],
+      "id": "bf68b481-ef99-4d63-acb0-e036fd492cc0",
+      "name": "Process Webhook Data"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "AI Cold Call Agent",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1189142611,
+          "mode": "list",
+          "cachedResultName": "AI Cold Call",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=1189142611"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Phone": "={{ $('Get row(s) in sheet').item.json.Phone }}",
+            "CallStatus": "In Progress",
+            "call ID": "={{ $('Call Initiation (Vapi.ai)').all()[0].json.id }}",
+            "LastCallDate": "={{ $json.currentTimeIST }}"
+          },
+          "matchingColumns": [
+            "Phone"
+          ],
+          "schema": [
+            {
+              "id": "Name",
+              "displayName": "Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Industry",
+              "displayName": "Industry",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Address",
+              "displayName": "Address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CallStatus",
+              "displayName": "CallStatus",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CompanyInfo",
+              "displayName": "CompanyInfo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone",
+              "displayName": "Phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ScheduledDate",
+              "displayName": "ScheduledDate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ScheduledTime",
+              "displayName": "ScheduledTime",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CallSummary",
+              "displayName": "CallSummary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "recordingUrl",
+              "displayName": "recordingUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "LastCallDate",
+              "displayName": "LastCallDate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "call ID",
+              "displayName": "call ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CallAnalyticsJSON",
+              "displayName": "CallAnalyticsJSON",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        2688,
+        256
+      ],
+      "id": "10a7764f-cb89-4e92-a4d1-294e21e6382d",
+      "name": "Call Id updating",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.vapi.ai/call",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_VAPI_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"assistantId\": \"YOUR_VAPI_ASSISTANT_ID\",\n  \"phoneNumberId\": \"YOUR_VAPI_PHONE_NUMBER_ID\",\n  \"customer\": {\n    \"numberE164CheckEnabled\": true,\n    \"number\": \"{{ $json.Phone }}\"\n  },\n  \"assistantOverrides\": {\n    \"variableValues\": {\n      \"Name\": \"{{ $json.Name || 'Customer' }}\",\n      \"Industry\": \"{{ $json.Industry || 'General' }}\",\n      \"CompanyInfo\": \"{{ $json.CompanyInfo }}\",\n      \"Email\": \"{{ $json.email }}\"\n    }\n  }\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2240,
+        256
+      ],
+      "id": "e17829ba-577f-4229-8ba7-c7a893d5365c",
+      "name": "Call Initiation (Vapi.ai)"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "00f6e219-bb57-4d55-9eb3-cca6a52a025c",
+              "leftValue": "={{ $json.isToday }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "9018c5e6-7f71-4614-a728-edce598ba73b",
+              "leftValue": "={{ $json.isWithinTimeRange }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1888,
+        672
+      ],
+      "id": "519097a3-3179-490d-8947-1cd537b642c3",
+      "name": "If it is Today check time range"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1d3f303a-e861-4606-bdec-ab7a0299c8aa",
+              "leftValue": "={{ $json.normalizedScheduledDate < $json.normalizedToday }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1888,
+        368
+      ],
+      "id": "5ed58f61-d997-4480-94a7-cd4e8fcdfbfb",
+      "name": "If Past Date"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Process all items from input\nconst items = $input.all();\n\nreturn items.map(item => {\n    const json = item.json;\n\n    // Get current date and time in UTC\n    const now = new Date();\n\n    // Get IST offset (UTC+5:30) in milliseconds\n    const istOffsetMs = 5.5 * 60 * 60 * 1000;\n\n    // Calculate current IST time\n    const istTime = new Date(now.getTime() + istOffsetMs);\n\n    // Validate and parse scheduled date\n    let scheduledDate;\n    const dateString = json.ScheduledDate;\n\n    // Add validation for date string\n    if (!dateString || dateString === '' || dateString === 'undefined' || dateString === 'null') {\n        console.log(`Invalid or missing date string: ${dateString}`);\n        return {\n            json: {\n                ...json,\n                isToday: false,\n                isWithinTimeRange: false,\n                isPastDate: false,\n                error: 'Missing or invalid scheduled date',\n                normalizedToday: istTime.toISOString(),\n                normalizedScheduledDate: null\n            }\n        };\n    }\n\n    if (typeof dateString === 'string' && dateString.includes('-')) {\n        // Split and parse YYYY-MM-DD format explicitly\n        const parts = dateString.split('-');\n        \n        // Validate parts\n        if (parts.length !== 3) {\n            console.log(`Invalid date format: ${dateString}`);\n            return {\n                json: {\n                    ...json,\n                    isToday: false,\n                    isWithinTimeRange: false,\n                    isPastDate: false,\n                    error: 'Invalid date format',\n                    normalizedToday: istTime.toISOString(),\n                    normalizedScheduledDate: null\n                }\n            };\n        }\n\n        const year = parseInt(parts[0]);\n        const month = parseInt(parts[1]) - 1; // JavaScript months are 0-indexed\n        const day = parseInt(parts[2]);\n\n        // Validate parsed values\n        if (isNaN(year) || isNaN(month) || isNaN(day) || \n            year < 1900 || year > 2100 || \n            month < 0 || month > 11 || \n            day < 1 || day > 31) {\n            console.log(`Invalid date values: year=${year}, month=${month}, day=${day}`);\n            return {\n                json: {\n                    ...json,\n                    isToday: false,\n                    isWithinTimeRange: false,\n                    isPastDate: false,\n                    error: 'Invalid date values',\n                    normalizedToday: istTime.toISOString(),\n                    normalizedScheduledDate: null\n                }\n            };\n        }\n\n        scheduledDate = new Date(year, month, day);\n    } else {\n        scheduledDate = new Date(dateString);\n    }\n\n    // Validate the created date\n    if (isNaN(scheduledDate.getTime())) {\n        console.log(`Invalid date created from: ${dateString}`);\n        return {\n            json: {\n                ...json,\n                isToday: false,\n                isWithinTimeRange: false,\n                isPastDate: false,\n                error: 'Could not create valid date',\n                normalizedToday: istTime.toISOString(),\n                normalizedScheduledDate: null\n            }\n        };\n    }\n\n    // Parse scheduled time from sheets (expecting HH:MM or HH:MM:SS format)\n    const scheduledTime = json.ScheduledTime || json.scheduledTime || \"00:00\";\n\n    // Validate and parse time\n    if (scheduledTime && scheduledTime.toString().includes(':')) {\n        const timeParts = scheduledTime.toString().split(':');\n        \n        if (timeParts.length >= 2) {\n            const hours = parseInt(timeParts[0]);\n            const minutes = parseInt(timeParts[1]);\n\n            // Validate time values\n            if (!isNaN(hours) && !isNaN(minutes) && \n                hours >= 0 && hours <= 23 && \n                minutes >= 0 && minutes <= 59) {\n                // Set the time on the scheduled date\n                scheduledDate.setHours(hours, minutes, 0, 0);\n            } else {\n                console.log(`Invalid time values: hours=${hours}, minutes=${minutes}`);\n                // Use default time if invalid\n                scheduledDate.setHours(0, 0, 0, 0);\n            }\n        }\n    }\n\n    // Validate the final scheduled date again\n    if (isNaN(scheduledDate.getTime())) {\n        console.log(`Invalid final scheduled date`);\n        return {\n            json: {\n                ...json,\n                isToday: false,\n                isWithinTimeRange: false,\n                isPastDate: false,\n                error: 'Invalid final scheduled date',\n                normalizedToday: istTime.toISOString(),\n                normalizedScheduledDate: null\n            }\n        };\n    }\n\n    // Calculate the scheduled date/time in UTC\n    const scheduledDateTimeUTC = new Date(scheduledDate.getTime() - istOffsetMs);\n\n    // Create normalized dates for date comparison (without time)\n    const normalizedToday = new Date(istTime.getFullYear(), istTime.getMonth(), istTime.getDate());\n    const normalizedScheduledDate = new Date(scheduledDate.getFullYear(), scheduledDate.getMonth(), scheduledDate.getDate());\n\n    // Validate normalized dates\n    if (isNaN(normalizedToday.getTime()) || isNaN(normalizedScheduledDate.getTime())) {\n        console.log(`Invalid normalized dates`);\n        return {\n            json: {\n                ...json,\n                isToday: false,\n                isWithinTimeRange: false,\n                isPastDate: false,\n                error: 'Invalid normalized dates',\n                normalizedToday: istTime.toISOString(),\n                normalizedScheduledDate: null\n            }\n        };\n    }\n\n    // Check if scheduled date is today\n    const isToday = normalizedToday.getTime() === normalizedScheduledDate.getTime();\n\n    // Calculate time difference in minutes\n    const timeDiffMs = scheduledDateTimeUTC.getTime() - now.getTime();\n    const diffInMinutes = Math.abs(timeDiffMs) / (1000 * 60);\n\n    // Check if scheduled time is in the past or future\n    const isInFuture = scheduledDate > istTime;\n\n    let isPast = false;\n    let isWithinTimeRange = false;\n\n    if (isToday) {\n        isPast = false;\n        isWithinTimeRange = diffInMinutes <= 10;\n    } else {\n        isPast = scheduledDate < istTime;\n        isWithinTimeRange = false; // Not today, so not within time range\n    }\n\n    // Detailed Debugging Output\n    const debugInfo = {\n        CallStatus: json.CallStatus,\n        CurrentTimeUTC: now.toISOString(),\n        CurrentTimeIST: istTime.toISOString(),\n        ScheduledDateString: dateString,\n        ScheduledTimeString: scheduledTime,\n        ScheduledDateParsed: scheduledDate.toISOString(),\n        ScheduledDateTimeUTC: scheduledDateTimeUTC.toISOString(),\n        NormalizedToday: normalizedToday.toISOString(),\n        NormalizedScheduledDate: normalizedScheduledDate.toISOString(),\n        isToday: isToday,\n        TimeDiffMinutes: diffInMinutes,\n        isWithinTimeRange: isWithinTimeRange,\n        isInFuture: isInFuture,\n        isPast: isPast\n    };\n    \n    console.log(\"Debug Info:\", debugInfo);\n\n    // Return the item with all original data plus new calculated fields\n    return {\n        json: {\n            ...json,\n            isToday: isToday,\n            isWithinTimeRange: isWithinTimeRange,\n            isPastDate: isPast,\n            normalizedToday: normalizedToday.toISOString(),\n            normalizedScheduledDate: normalizedScheduledDate.toISOString(),\n            debug: debugInfo\n        }\n    };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1648,
+        528
+      ],
+      "id": "2101739b-4421-458b-ac12-03beda460272",
+      "name": "Checking Call Schedule Date & Time"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0d9b729b-d4f2-4229-931b-3289bd7a3442",
+              "leftValue": "={{ $json.CallStatus }}",
+              "rightValue": "Scheduled",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "385ed030-bf80-4069-bc6f-25da6f59ad09",
+              "leftValue": "={{ $json.CallStatus }}",
+              "rightValue": "Pending Recall",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1328,
+        528
+      ],
+      "id": "88dcf213-5576-48cd-ac0a-e25b9f9eb524",
+      "name": "Is Scheduled?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a505a429-a0f9-4936-b8bc-d49a76444573",
+              "leftValue": "={{ $json.CallStatus }}",
+              "rightValue": "Pending",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1088,
+        288
+      ],
+      "id": "02e3caf8-79f8-4c66-a103-25e2f6fa2b79",
+      "name": "Checking Call Status"
+    },
+    {
+      "parameters": {
+        "batchSize": 5,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        592,
+        288
+      ],
+      "id": "6600f21d-abad-4d96-9668-f0beef281a15",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "content": "",
+        "height": 480,
+        "width": 880,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1296,
+        352
+      ],
+      "typeVersion": 1,
+      "id": "1f735e02-9ea4-4be6-9586-be264b7de7a9",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "",
+        "height": 220,
+        "width": 700,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2192,
+        208
+      ],
+      "typeVersion": 1,
+      "id": "3400b8aa-e5b7-4554-86d9-3e04ae6aa50f",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "AI Cold Call Agent",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1189142611,
+          "mode": "list",
+          "cachedResultName": "AI Cold Call",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=1189142611"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        336,
+        288
+      ],
+      "id": "2b8b9f23-0d0e-41c8-963b-8f5083f9fc1d",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "",
+        "height": 220,
+        "width": 640,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        48,
+        1216
+      ],
+      "typeVersion": 1,
+      "id": "8ce11cf9-d46d-4007-ac36-e6f375e91b48",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "",
+        "height": 220,
+        "width": 760,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1808,
+        1216
+      ],
+      "typeVersion": 1,
+      "id": "23f78ec4-d3eb-49c2-afc8-52ab3563ae9a",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "",
+        "height": 240,
+        "width": 520,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        768,
+        992
+      ],
+      "typeVersion": 1,
+      "id": "85836206-a6f8-4880-b37f-9e02712390a7",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "content": "",
+        "height": 240,
+        "width": 1040,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        768,
+        1392
+      ],
+      "typeVersion": 1,
+      "id": "f1fff027-0e3f-47fb-8cd7-68d4333e8881",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "content": "",
+        "height": 200,
+        "width": 1760,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -32,
+        1920
+      ],
+      "typeVersion": 1,
+      "id": "bc745f1c-9ff7-4180-811e-f9a5cd77ab91",
+      "name": "Sticky Note8"
+    },
+    {
+      "parameters": {
+        "content": "",
+        "height": 200,
+        "width": 2240,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1296,
+        2160
+      ],
+      "typeVersion": 1,
+      "id": "e574ce61-e5b2-4782-a7ff-8af62da3c442",
+      "name": "Sticky Note9"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Input Arguments from booking tools').item.json.email }}",
+        "subject": "ERP Demo Meeting | Your Company Name",
+        "message": "=<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>ERP Demo Scheduled</title>\n    <style>\n        body {\n            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;\n            line-height: 1.6;\n            color: #333;\n            background-color: #f4f6f9;\n            margin: 0;\n            padding: 0;\n        }\n        .email-container {\n            max-width: 680px;\n            margin: 30px auto;\n            background: #ffffff;\n            border-radius: 12px;\n            box-shadow: 0 8px 32px rgba(0,0,0,0.12);\n            overflow: hidden;\n        }\n        .header {\n            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);\n            color: white;\n            padding: 40px 30px;\n            text-align: center;\n            position: relative;\n        }\n        .header::before {\n            content: '';\n            position: absolute;\n            top: 0;\n            left: 0;\n            right: 0;\n            bottom: 0;\n            background: url('data:image/svg+xml,<svg xmlns=\"http://www.w3.org/2000/svg\" viewBox=\"0 0 1000 100\" fill=\"white\" opacity=\"0.1\"><polygon points=\"0,0 1000,0 1000,80 0,100\"/></svg>');\n            background-size: cover;\n        }\n        .header-content {\n            position: relative;\n            z-index: 1;\n        }\n        .header h1 {\n            margin: 0;\n            font-size: 20px;\n            font-weight: 600;\n            margin-bottom: 4px;\n        }\n        .header p {\n            margin: 0;\n            font-size: 13px;\n            opacity: 0.95;\n            font-weight: 400;\n        }\n        .logo-container {\n            margin-bottom: 12px;\n        }\n        .company-logo {\n            max-height: 40px;\n            max-width: 150px;\n            height: auto;\n            width: auto;\n            display: block;\n            margin: 0 auto;\n            /* Enhanced visibility with stronger white background */\n            filter: none;\n            background: rgba(255,255,255,1);\n            padding: 8px 12px;\n            border-radius: 6px;\n            box-shadow: 0 2px 8px rgba(0,0,0,0.15);\n        }\n        /* Alternative logo styling for light background if needed */\n        .company-logo.light-bg {\n            filter: none; /* Normal colors for light backgrounds */\n        }\n        .odoo-banner {\n            margin-top: 15px;\n            padding-top: 12px;\n            border-top: 1px solid #e5e7eb;\n            text-align: center;\n        }\n        .odoo-logo {\n            max-width: 100%;\n            width: 100%;\n            height: auto;\n            max-height: 140px;\n            border-radius: 8px;\n            box-shadow: 0 3px 12px rgba(0,0,0,0.12);\n            object-fit: contain;\n        }\n        .content {\n            padding: 25px 30px;\n        }\n        .greeting {\n            font-size: 16px;\n            margin-bottom: 15px;\n            color: #1e40af;\n            font-weight: 500;\n        }\n        .highlight-box {\n            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);\n            border: 2px solid #0ea5e9;\n            border-radius: 10px;\n            padding: 18px;\n            margin: 20px 0;\n            text-align: center;\n        }\n        .highlight-box h3 {\n            color: #0c4a6e;\n            margin: 0 0 8px 0;\n            font-size: 18px;\n            font-weight: 600;\n        }\n        .highlight-box p {\n            color: #075985;\n            margin: 0;\n            font-size: 14px;\n            font-weight: 500;\n        }\n        .meeting-card {\n            background: #ffffff;\n            border: 1px solid #e5e7eb;\n            border-radius: 8px;\n            padding: 15px;\n            margin: 15px 0;\n            box-shadow: 0 2px 6px rgba(0,0,0,0.05);\n        }\n        .meeting-card h3 {\n            color: #1e40af;\n            margin: 0 0 20px 0;\n            font-size: 20px;\n            display: flex;\n            align-items: center;\n            gap: 10px;\n        }\n        .detail-grid {\n            display: grid;\n            grid-template-columns: 1fr 1fr;\n            gap: 20px;\n            margin-bottom: 25px;\n        }\n        .detail-item {\n            display: flex;\n            align-items: center;\n            gap: 0px;\n            padding: 15px 20px;\n            background: #ffffff;\n            border-radius: 8px;\n            border: 1px solid #e5e7eb;\n            box-shadow: 0 1px 3px rgba(0,0,0,0.05);\n        }\n        .detail-icon {\n            font-size: 18px;\n            width: 24px;\n            text-align: center;\n        }\n        .detail-content {\n            flex: 1;\n        }\n        .detail-label {\n            font-size: 12px;\n            color: #6b7280;\n            text-transform: uppercase;\n            font-weight: 600;\n            margin-bottom: 2px;\n        }\n        .detail-value {\n            font-size: 15px;\n            color: #1f2937;\n            font-weight: 600;\n        }\n        .join-button-container {\n            text-align: center;\n            margin: 35px 0;\n            padding: 25px;\n            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);\n            border-radius: 12px;\n            border: 2px dashed #f59e0b;\n        }\n        .join-button {\n            display: inline-block;\n            background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);\n            color: #ffffff !important;\n            text-decoration: none;\n            padding: 16px 32px;\n            border-radius: 8px;\n            font-weight: 700;\n            font-size: 16px;\n            text-transform: uppercase;\n            letter-spacing: 0.5px;\n            transition: all 0.3s ease;\n            box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);\n            border: none;\n            text-shadow: 0 1px 2px rgba(0,0,0,0.2);\n        }\n        .join-button:hover {\n            transform: translateY(-2px);\n            box-shadow: 0 8px 20px rgba(30, 64, 175, 0.4);\n            background: linear-gradient(135deg, #1d4ed8 0%, #1e3a8a 100%);\n            color: #ffffff !important;\n        }\n        .join-text {\n            margin-top: 10px;\n            font-size: 14px;\n            color: #92400e;\n            font-weight: 600;\n        }\n        .benefits-section {\n            background: #f9fafb;\n            border-radius: 10px;\n            padding: 25px;\n            margin: 30px 0;\n        }\n        .benefits-section h4 {\n            color: #1e40af;\n            margin: 0 0 20px 0;\n            font-size: 18px;\n            text-align: center;\n        }\n        .benefits-list {\n            list-style: none;\n            padding: 0;\n            margin: 0;\n        }\n        .benefits-list li {\n            padding: 12px 0;\n            padding-left: 35px;\n            position: relative;\n            color: #374151;\n            font-size: 15px;\n            line-height: 1.5;\n        }\n        .benefits-list li::before {\n            content: '✅';\n            position: absolute;\n            left: 0;\n            font-size: 16px;\n        }\n        .preparation-box {\n            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);\n            border: 1px solid #34d399;\n            border-radius: 10px;\n            padding: 15px;\n            margin: 15px 0;\n        }\n        .preparation-box h4 {\n            color: #065f46;\n            margin: 0 0 12px 0;\n            font-size: 14px;\n            display: flex;\n            align-items: center;\n            gap: 8px;\n        }\n        .preparation-box p {\n            color: #047857;\n            margin: 0;\n            font-size: 13px;\n            line-height: 1.5;\n        }\n        .signature {\n            margin-top: 20px;\n            padding-top: 15px;\n            border-top: 2px solid #e5e7eb;\n        }\n        .signature-name {\n            font-weight: 700;\n            color: #1e40af;\n            font-size: 16px;\n            margin-bottom: 3px;\n            line-height: 1.3;\n        }\n        .signature-title {\n            font-weight: 600;\n            color: #6b7280;\n            font-size: 14px;\n            margin-bottom: 12px;\n            line-height: 1.3;\n        }\n        .contact-info {\n            font-size: 14px;\n            color: #6b7280;\n            line-height: 1.5;\n            margin-bottom: 8px;\n        }\n        .contact-info a {\n            color: #1e40af;\n            text-decoration: none;\n            font-weight: 500;\n        }\n        .contact-info a:hover {\n            text-decoration: underline;\n        }\n        .company-info {\n            font-weight: 700;\n            color: #1e40af;\n            margin-top: 6px;\n            margin-bottom: 4px;\n            font-size: 15px;\n            line-height: 1.3;\n        }\n        .footer {\n            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);\n            padding: 25px 35px;\n            text-align: center;\n            border-top: 1px solid #e5e7eb;\n        }\n        .footer p {\n            margin: 0;\n            font-size: 13px;\n            color: #64748b;\n        }\n        .footer a {\n            color: #1e40af;\n            text-decoration: none;\n            font-weight: 500;\n        }\n        @media (max-width: 600px) {\n            .email-container {\n                margin: 15px;\n                border-radius: 8px;\n            }\n            .content {\n                padding: 30px 25px;\n            }\n            .header {\n                padding: 30px 20px;\n            }\n            .detail-grid {\n                grid-template-columns: 1fr;\n                gap: 15px;\n            }\n            .join-button {\n                font-size: 16px;\n                padding: 16px 32px;\n            }\n        }\n    </style>\n</head>\n<body>\n    <div class=\"email-container\">\n        <div class=\"header\">\n            <div class=\"header-content\">\n                <h1>Demo Scheduled Successfully!</h1>\n                <p>Your personalized ERP solution demonstration is confirmed</p>\n\n            </div>\n        </div>\n        \n        <div class=\"content\">\n            <div class=\"greeting\">\n                Hi {{ $('bookEvent').item.json.body.message.toolCalls[0].function.arguments.Name }},\n            </div>\n            \n            <p style=\"font-size: 15px; margin-bottom: 15px; line-height: 1.6;\">\n                Thank you for showing interest in our ERP solutions. We're pleased to confirm your consultation and excited to demonstrate how our platform can  <strong>optimize your business operations and drive measurable growth</strong>.\n            </p>\n\n            <div class=\"highlight-box\">\n                <h3>🚀 Get Ready to Transform Your Business!</h3>\n                <p>Our ERP specialists are preparing a customized demonstration tailored specifically to your industry needs</p>\n            </div>\n            \n            <div class=\"meeting-card\">\n                <h3 style=\"color: #1e40af; margin: 0 0 10px 0; font-size: 16px; font-weight: 600; text-align: center; padding-bottom: 6px; border-bottom: 1px solid #e5e7eb;\">\n                    📅 Meeting Details\n                </h3>\n                \n                <!-- Professional Meeting Summary -->\n                <div style=\"background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); padding: 12px; border-radius: 6px; margin-bottom: 10px; border-left: 3px solid #1e40af;\">\n                    <div style=\"text-align: center; margin-bottom: 8px;\">\n                        <div style=\"font-size: 15px; font-weight: 600; color: #1e40af; margin-bottom: 3px;\">\n                           {{ $json.formattedDate }} at {{ (() => {\n   const [h,m] =$json.formattedTime .split(':');\n   const hour = parseInt(h, 10);\n   const suffix = hour >= 12 ? 'PM' : 'AM';\n   const hour12 = ((hour + 11) % 12 + 1);\n   return `${hour12}:${m} ${suffix}`;\n })() }} IST\n                        </div>\n                        <div style=\"font-size: 12px; color: #64748b; font-weight: 500;\">\n                            30-minute ERP consultation with our Senior Specialist\n                        </div>\n                    </div>\n                    \n                    <!-- Meeting Agenda -->\n                    <div style=\"background: white; padding: 10px; border-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05);\">\n                        <h4 style=\"margin: 0 0 6px 0; color: #374151; font-size: 13px; font-weight: 600;\">📋 Agenda:</h4>\n                        <ul style=\"margin: 0; padding-left: 16px; color: #4b5563; font-size: 12px; line-height: 1.4;\">\n                            <li style=\"margin-bottom: 3px;\">Business requirements analysis</li>\n                            <li style=\"margin-bottom: 3px;\">Live ERP platform demonstration</li>\n                            <li style=\"margin-bottom: 3px;\">Implementation timeline discussion</li>\n                            <li>Q&A and next steps</li>\n                        </ul>\n                    </div>\n                </div>\n                \n                <!-- Professional Join Button -->\n                <div style=\"text-align: center; margin: 10px 0; padding: 10px; background: white; border-radius: 4px; border: 1px solid #e5e7eb;\">\n                    <div style=\"font-size: 12px; color: #6b7280; font-weight: 500; margin-bottom: 8px;\">\n                        <strong>Ready to join your consultation?</strong>\n                    </div>\n                    <div style=\"margin-bottom: 6px;\">\n                        <a href=\"{{ $('Create Event').item.json.hangoutLink }}\" class=\"join-button\" style=\"display: inline-block; background: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%); color: #ffffff !important; text-decoration: none; padding: 10px 20px; border-radius: 5px; font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 2px 6px rgba(30, 64, 175, 0.3); text-shadow: 0 1px 2px rgba(0,0,0,0.2);\">\n                            JOIN MEETING\n                        </a>\n                    </div>\n                </div>\n            </div>\n            \n            <div class=\"preparation-box\">\n                <h4>💡 Quick Preparation Tip:</h4>\n                <p>Feel free to prepare any specific questions about your current processes, pain points, or challenges you'd like to discuss. The more details you share, the more personalized we can make your demo experience!</p>\n            </div>\n            \n            <p style=\"font-size: 15px; margin-top: 12px; margin-bottom: 4px; line-height: 1.5;\">\n                We're excited to showcase our ERP platform's capabilities and explore how it can transform your operational efficiency.\n            </p>\n\n            <p style=\"font-size: 15px; margin-bottom: 4px; line-height: 1.5;\">\n                If you need to reschedule or have any questions before our meeting, you can reach out directly to me or simply reply to this email.\n            </p>\n            \n            <div class=\"signature\">\n                <div class=\"signature-name\">Best regards,</div>\n                <div class=\"signature-name\">Your Name</div>\n                <div class=\"signature-title\">Co-Founder</div>\n                <div class=\"contact-info\">\n                    📞 <a href=\"tel:+91XXXXXXXXXX\">+91-XXXXXXXXXX</a> | \n                    🌐 <a href=\"https://www.your-domain.com\">www.your-domain.com</a> | \n                    ✉️ <a href=\"mailto:your-email@example.com\">your-email@example.com</a>\n                </div>\n                <div class=\"company-info\">Your Company Name</div>\n                <div class=\"contact-info\">Your Company Address</div>\n                \n                <!-- Odoo Implementation Banner - Direct GitHub Raw URL -->\n                <div class=\"odoo-banner\">\n                    <img src=\"YOUR_LOGO_URL\" alt=\"Odoo Implementation - Let us implement Odoo to your business and achieve organizational goals\" class=\"odoo-logo\" onerror=\"this.style.display='none'\" />\n                </div>\n            </div>\n        </div>\n        \n        <div class=\"footer\">\n            <p>🔒 This demo invitation was sent by Your Company Name<br>\n            Need assistance? Contact us at <a href=\"mailto:contact@example.com\">contact@example.com</a></p>\n        </div>\n    </div>\n</body>\n</html>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2896,
+        2656
+      ],
+      "id": "037d0955-0ec4-4c98-a6b5-39083e16cb20",
+      "name": "Send a message",
+      "webhookId": "YOUR_GMAIL_WEBHOOK_ID",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "YOUR_GMAIL_CREDENTIAL_ID",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "",
+        "height": 200,
+        "width": 1460,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -48,
+        2656
+      ],
+      "typeVersion": 1,
+      "id": "637c07e5-ca0d-4f0f-9f1e-538f409f4afd",
+      "name": "Sticky Note10"
+    },
+    {
+      "parameters": {
+        "content": "",
+        "height": 200,
+        "width": 580,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        848,
+        2912
+      ],
+      "typeVersion": 1,
+      "id": "bc12164b-529c-40ff-9661-301ef6e8f481",
+      "name": "Sticky Note11"
+    },
+    {
+      "parameters": {
+        "content": "",
+        "height": 540,
+        "width": 580,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1488,
+        2448
+      ],
+      "typeVersion": 1,
+      "id": "d95bbc73-ee85-44e6-a8d3-4df83cdcd205",
+      "name": "Sticky Note12"
+    },
+    {
+      "parameters": {
+        "content": "",
+        "height": 220,
+        "width": 1140,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2176,
+        2608
+      ],
+      "typeVersion": 1,
+      "id": "49b761db-5a49-4a8c-94a7-e1cb2d70af3a",
+      "name": "Sticky Note13"
+    },
+    {
+      "parameters": {
+        "content": "## 2) Check Availability",
+        "height": 80,
+        "width": 260,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -48,
+        1776
+      ],
+      "typeVersion": 1,
+      "id": "a038acd6-9ec8-488c-83b2-2e77e3cd48fb",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "content": "## 3) Book Meeting",
+        "height": 80,
+        "width": 260,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -48,
+        2528
+      ],
+      "typeVersion": 1,
+      "id": "59dc81d2-f479-4908-99de-ff95cf484c3d",
+      "name": "Sticky Note14"
+    },
+    {
+      "parameters": {
+        "content": "## 1) Call Processing",
+        "height": 80,
+        "width": 260,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -48,
+        1088
+      ],
+      "typeVersion": 1,
+      "id": "77fa5453-0d92-41c3-a9ce-dd25210c2e20",
+      "name": "Sticky Note15"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\nconst summary = (item.callSummary || \"\").toLowerCase();\nconst transcript = (item.callTranscript || \"\").toLowerCase();\n\nconst text = summary + \" \" + transcript;\n\nconst callbackPhrases = [\n    'call me later', 'call back', 'not now', 'call me after sometime', \n    'right now i am busy', 'call me today at', 'i am busy', 'call tomorrow',\n    'call me after', 'call me at', 'busy right now', 'call me back',\n    'call later', 'call me in', 'call after'\n];\n// const meetingPhrases = ['demo', 'meeting', 'pre-sales', 'sales person', 'book', 'schedule'];\n\nlet intent = 'unknown';\nif (callbackPhrases.some(p => text.includes(p))) {\n  intent = 'callback';\n} \n// else if (meetingPhrases.some(p => text.includes(p))) {\n//   intent = 'meeting';\n// }\n\nreturn [{\n  json: {\n    ...item,\n    detectedIntent: intent\n  }\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1088,
+        1456
+      ],
+      "id": "6bf24a65-dd90-4b1c-8014-c0e87431b255",
+      "name": "Intent Analyzing"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "YOUR_WEBHOOK_ID",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        288
+      ],
+      "id": "1ec4e81a-d18b-4c93-b5d1-71cce9514ff4",
+      "name": "Webhook1",
+      "webhookId": "YOUR_WEBHOOK_ID"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Date and Time formatting": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatting mobile number": {
+      "main": [
+        [
+          {
+            "node": "Checking Call Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert time to Asia/Kolkata": {
+      "main": [
+        [
+          {
+            "node": "Create Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "bookEvent": {
+      "main": [
+        [
+          {
+            "node": "Input Arguments from booking tools",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If the booking is confirmed then true": {
+      "main": [
+        [
+          {
+            "node": "Date and Time formatting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Vapi": {
+      "main": [
+        [
+          {
+            "node": "If the booking is confirmed then true",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Event": {
+      "main": [
+        [
+          {
+            "node": "Booking Payload",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Add Friendly Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Input Arguments from booking tools": {
+      "main": [
+        [
+          {
+            "node": "Has all information",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Error Response Payload": {
+      "main": [
+        [
+          {
+            "node": "Respond with Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has all information": {
+      "main": [
+        [
+          {
+            "node": "Escape Json",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Error Response Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Escape Json": {
+      "main": [
+        [
+          {
+            "node": "Convert time to Asia/Kolkata",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Response": {
+      "main": [
+        [
+          {
+            "node": "Respond to Vapi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Friendly Error": {
+      "main": [
+        [
+          {
+            "node": "Error Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Success Response": {
+      "main": [
+        [
+          {
+            "node": "Respond to Vapi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Booking Payload": {
+      "main": [
+        [
+          {
+            "node": "Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "openSlots TRUE",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get all events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "getSlots": {
+      "main": [
+        [
+          {
+            "node": "Input fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "date validation": {
+      "main": [
+        [
+          {
+            "node": "Check availability",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert into JSON format for vapi": {
+      "main": [
+        [
+          {
+            "node": "Response to vapi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build response Playload": {
+      "main": [
+        [
+          {
+            "node": "Convert into JSON format for vapi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "enrich date": {
+      "main": [
+        [
+          {
+            "node": "Build response Playload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Flatten slots": {
+      "main": [
+        [
+          {
+            "node": "enrich date",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Available start time and range": {
+      "main": [
+        [
+          {
+            "node": "Flatten slots",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sort": {
+      "main": [
+        [
+          {
+            "node": "Response Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Response Format": {
+      "main": [
+        [
+          {
+            "node": "Available start time and range",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get all events": {
+      "main": [
+        [
+          {
+            "node": "Extract start, end",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check availability": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract start, end": {
+      "main": [
+        [
+          {
+            "node": "Sort",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Input fields": {
+      "main": [
+        [
+          {
+            "node": "date validation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "openSlots TRUE": {
+      "main": [
+        [
+          {
+            "node": "Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Process Webhook Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Changing  time format to IST": {
+      "main": [
+        [
+          {
+            "node": "Call Id updating",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Parse Schedule time from summary",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Google Sheets updating",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scheduling \"Failed Calls\"": {
+      "main": [
+        [
+          {
+            "node": "Pending Recall for Failed Calls",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "successEvaluation": {
+      "main": [
+        [
+          {
+            "node": "Intent Analyzing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Time Extraction successfull": {
+      "main": [
+        [
+          {
+            "node": "Updating Scheduled Calls",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Schedule time from summary": {
+      "main": [
+        [
+          {
+            "node": "Is Time Extraction successfull",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Failed and Answered Calls": {
+      "main": [
+        [
+          {
+            "node": "Scheduling \"Failed Calls\"",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "successEvaluation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Webhook Data": {
+      "main": [
+        [
+          {
+            "node": "Filter Failed and Answered Calls",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Initiation (Vapi.ai)": {
+      "main": [
+        [
+          {
+            "node": "Changing  time format to IST",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If it is Today check time range": {
+      "main": [
+        [
+          {
+            "node": "Call Initiation (Vapi.ai)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Past Date": {
+      "main": [
+        [
+          {
+            "node": "Call Initiation (Vapi.ai)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Checking Call Schedule Date & Time": {
+      "main": [
+        [
+          {
+            "node": "If it is Today check time range",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "If Past Date",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Scheduled?": {
+      "main": [
+        [
+          {
+            "node": "Checking Call Schedule Date & Time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Checking Call Status": {
+      "main": [
+        [
+          {
+            "node": "Call Initiation (Vapi.ai)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Is Scheduled?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Formatting mobile number",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Meeting details update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Intent Analyzing": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "YOUR_VERSION_ID",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "YOUR_N8N_INSTANCE_ID"
+  },
+  "id": "YOUR_WORKFLOW_ID",
+  "tags": []
+}

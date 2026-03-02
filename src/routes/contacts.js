@@ -115,25 +115,25 @@ router.get('/', async (req, res) => {
             contactsData = [
                 { 
                     id: 1, 
-                    name: 'Surya', 
-                    industry: 'Tech', 
-                    location: 'Hyderabad', 
+                    name: 'Client A',
+                    industry: 'Tech',
+                    location: 'City A',
                     status: 'Meeting Booked',
                     companyInfo: 'Cloud solutions provider focusing on AI integrations'
                 },
-                { 
-                    id: 2, 
-                    name: 'Pranay', 
-                    industry: 'Tech', 
-                    location: 'Hyderabad', 
+                {
+                    id: 2,
+                    name: 'Client B',
+                    industry: 'Tech',
+                    location: 'City B',
                     status: 'Pending Recall',
                     companyInfo: 'Software development firm specializing in mobile applications'
                 },
-                { 
-                    id: 3, 
-                    name: 'Varun', 
-                    industry: 'Sales', 
-                    location: 'Hyderabad', 
+                {
+                    id: 3,
+                    name: 'Client C',
+                    industry: 'Sales',
+                    location: 'City C',
                     status: 'Scheduled',
                     companyInfo: 'Sales automation platform for enterprise clients'
                 }
@@ -249,20 +249,15 @@ router.post('/', async (req, res) => {
     }
 });
 
-// Update contact endpoint
-router.put('/:id', async (req, res) => {
+// Update contact endpoint - now supports PATCH for partial updates
+router.patch('/:id', async (req, res) => {
     try {
         const contactId = req.params.id;
         console.log(`📊 Updating contact with ID ${contactId}:`, req.body);
         
-        // Validate required fields
-        const { name, industry, location, status } = req.body;
-        if (!name || !industry || !location || !status) {
-            return res.status(400).json({
-                success: false,
-                error: 'Missing required fields: name, industry, location, and status are required'
-            });
-        }
+        // For a PATCH request, we don't need all fields to be present
+        // Just update the fields that were provided
+        const updateData = req.body;
         
         let updateSuccess = false;
         
@@ -270,60 +265,111 @@ router.put('/:id', async (req, res) => {
             console.log(`📝 Updating contact ${contactId} in Google Sheets...`);
             try {
                 // First, we need to find the row in the sheet that matches this contact
-                // For simplicity, let's fetch all data and find the matching row
                 const sheetData = await sheetsService.fetchSheetData();
                 
                 if (!sheetData || !Array.isArray(sheetData) || sheetData.length === 0) {
                     throw new Error('No data found in sheet');
                 }
                 
-                // Try to find the row by matching name and other identifiers
                 let rowIndex = -1;
-                const searchName = req.body.name.toLowerCase().trim();
                 
-                if (Array.isArray(sheetData[0])) {
-                    // Data is array of arrays (direct sheet format)
-                    const headers = sheetData[0];
-                    let nameColumnIndex = -1;
-                    
-                    // Find name column
-                    headers.forEach((header, index) => {
-                        if (header.toLowerCase().includes('name')) {
-                            nameColumnIndex = index;
+                // If contactId is a number and looks like a row index
+                if (!isNaN(contactId) && parseInt(contactId) > 0) {
+                    // Row index is provided (from spreadsheet)
+                    rowIndex = parseInt(contactId) + 1; // +1 for header row
+                    console.log(`📊 Using provided row index: ${rowIndex}`);
+                } else {
+                    // Try to find the row by matching name and other identifiers
+                    if (Array.isArray(sheetData[0])) {
+                        // Data is array of arrays (direct sheet format)
+                        const headers = sheetData[0].map(h => h.toLowerCase());
+                        
+                        // Find name column index
+                        const nameColumnIndex = headers.findIndex(h => h.includes('name'));
+                        const idColumnIndex = headers.findIndex(h => h === 'id' || h === 'call id');
+                        
+                        if (nameColumnIndex === -1 && idColumnIndex === -1) {
+                            throw new Error('Could not find name or ID column in sheet');
                         }
-                    });
-                    
-                    if (nameColumnIndex === -1) {
-                        throw new Error('Could not find name column in sheet');
-                    }
-                    
-                    // Find row with matching name
-                    for (let i = 1; i < sheetData.length; i++) {
-                        if (sheetData[i][nameColumnIndex] && 
-                            sheetData[i][nameColumnIndex].toLowerCase().trim() === searchName) {
-                            rowIndex = i + 1; // 1-indexed for sheets API
-                            break;
+                        
+                        // Try to find by ID first, then by name
+                        if (idColumnIndex !== -1) {
+                            for (let i = 1; i < sheetData.length; i++) {
+                                if (sheetData[i][idColumnIndex] && 
+                                    sheetData[i][idColumnIndex].toString() === contactId.toString()) {
+                                    rowIndex = i + 1; // 1-indexed for sheets API
+                                    break;
+                                }
+                            }
+                        }
+                        
+                        // If not found by ID, try by name
+                        if (rowIndex === -1 && nameColumnIndex !== -1 && req.body.name) {
+                            const searchName = req.body.name.toLowerCase().trim();
+                            for (let i = 1; i < sheetData.length; i++) {
+                                if (sheetData[i][nameColumnIndex] && 
+                                    sheetData[i][nameColumnIndex].toLowerCase().trim() === searchName) {
+                                    rowIndex = i + 1; // 1-indexed for sheets API
+                                    break;
+                                }
+                            }
                         }
                     }
                 }
                 
                 if (rowIndex === -1) {
-                    console.log(`⚠️ Could not find row for contact: ${searchName}`);
+                    console.log(`⚠️ Could not find row for contact ID: ${contactId}`);
+                    throw new Error('Contact not found in Google Sheet');
                 } else {
-                    console.log(`📊 Found contact at row ${rowIndex}, updating...`);
+                    console.log(`📊 Found contact at row ${rowIndex}, updating fields:`, Object.keys(updateData).join(', '));
                     
-                    // Update the values in that row
-                    const values = [
-                        req.body.name,
-                        req.body.industry,
-                        req.body.location || req.body.address,
-                        req.body.status,
-                        req.body.companyInfo || '',
-                        req.body.phone || '',
-                        req.body.email || ''
-                    ];
+                    // Get the current row data
+                    const currentRowData = sheetData[rowIndex - 1]; // Convert to 0-indexed
                     
-                    updateSuccess = await sheetsService.updateSheetRow(rowIndex, values);
+                    // Map the header columns to find where each field should go
+                    const headers = sheetData[0].map(h => h.toLowerCase());
+                    
+                    // Create a mapping of field names to column indices
+                    const fieldColumnMap = {};
+                    headers.forEach((header, index) => {
+                        if (header.includes('name')) fieldColumnMap.name = index;
+                        else if (header.includes('industry')) fieldColumnMap.industry = index;
+                        else if (header.includes('address') || header.includes('location')) fieldColumnMap.location = index;
+                        else if (header.includes('status') || header.includes('callstatus')) fieldColumnMap.status = index;
+                        else if (header.includes('company') || header.includes('info')) fieldColumnMap.companyInfo = index;
+                        else if (header.includes('phone')) fieldColumnMap.phone = index;
+                        else if (header.includes('email')) fieldColumnMap.email = index;
+                        else if (header.includes('scheduleddate')) fieldColumnMap.scheduledDate = index;
+                        else if (header.includes('scheduledtime')) fieldColumnMap.scheduledTime = index;
+                        else if (header.includes('summary')) fieldColumnMap.callSummary = index;
+                        else if (header.includes('recording')) fieldColumnMap.recordingUrl = index;
+                        else if (header.includes('lastcall')) fieldColumnMap.lastCallDate = index;
+                        else if (header === 'call id' || header === 'callid') fieldColumnMap.call_id = index;
+                        else if (header.includes('analytics')) fieldColumnMap.callAnalyticsJSON = index;
+                    });
+                    
+                    console.log('📊 Field to column mapping:', fieldColumnMap);
+                    
+                    // Create a new row with updated values where provided
+                    const updatedRow = [...currentRowData];
+                    
+                    // Update only the fields that were provided in the request
+                    Object.keys(updateData).forEach(field => {
+                        const columnKey = field === 'address' ? 'location' : field;
+                        
+                        if (fieldColumnMap[columnKey] !== undefined) {
+                            updatedRow[fieldColumnMap[columnKey]] = updateData[field];
+                            console.log(`📝 Updating field ${field} at column ${fieldColumnMap[columnKey]} to "${updateData[field]}"`);
+                        }
+                    });
+                    
+                    // If this was a status update, update the lastCallDate
+                    if (updateData.status && fieldColumnMap.lastCallDate !== undefined) {
+                        updatedRow[fieldColumnMap.lastCallDate] = new Date().toISOString();
+                    }
+                    
+                    // Update the sheet with the new row data
+                    updateSuccess = await sheetsService.updateSheetRow(rowIndex, updatedRow);
                 }
             } catch (sheetError) {
                 console.error('❌ Error updating in Google Sheets:', sheetError);
@@ -348,7 +394,7 @@ router.put('/:id', async (req, res) => {
         console.error('❌ Error updating contact:', error);
         res.status(500).json({
             success: false,
-            error: 'Failed to update contact'
+            error: 'Failed to update contact: ' + error.message
         });
     }
 });

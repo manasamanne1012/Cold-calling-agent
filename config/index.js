@@ -23,10 +23,14 @@ const config = {
   
   // N8N workflow configuration
   n8n: {
-    webhookUrl: getEnv('N8N_WEBHOOK_URL', ''),
-    apiKey: getEnv('N8N_API_KEY', ''),
-    baseUrl: getEnv('N8N_BASE_URL', '')
-  },
+  baseUrl: process.env.N8N_BASE_URL,
+  webhookPath: process.env.N8N_WEBHOOK_PATH,
+  apiKey: process.env.N8N_API_KEY,
+  auth: {
+    user: process.env.N8N_AUTH_USER,
+    password: process.env.N8N_AUTH_PASSWORD,
+  }
+},
   
   // Google Sheets integration
   googleSheets: {
@@ -53,8 +57,8 @@ const config = {
   
   // Security settings
   security: {
-    cookieSecret: getEnv('COOKIE_SECRET', 'ai-cold-call-agent-secret'),
-    jwtSecret: getEnv('JWT_SECRET', 'ai-cold-call-agent-jwt-secret'),
+    cookieSecret: getEnv('COOKIE_SECRET', 'change-this-cookie-secret'),
+    jwtSecret: getEnv('JWT_SECRET', 'change-this-jwt-secret'),
     jwtExpiresIn: getEnv('JWT_EXPIRES_IN', '1d')
   }
 };

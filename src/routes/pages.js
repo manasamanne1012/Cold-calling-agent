@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Page Routes for the application
  */
 const express = require('express');
@@ -8,6 +8,16 @@ const path = require('path');
 // Root route - serve main dashboard
 router.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '..', '..', 'public', 'index.html'));
+});
+
+// Simplified contact management interface
+router.get('/simple-contacts.html', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', '..', 'public', 'simple-contacts.html'));
+});
+
+// Direct Google Sheets embed for contacts
+router.get('/direct-contacts-sheet.html', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', '..', 'public', 'direct-contacts-sheet.html'));
 });
 
 // Direct Google Sheets editor route

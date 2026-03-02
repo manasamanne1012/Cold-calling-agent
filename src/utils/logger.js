@@ -54,7 +54,7 @@ const customFormat = winston.format.printf(({ level, message, timestamp, ...meta
 
 // Create Winston logger
 const logger = winston.createLogger({
-  level: config?.server?.logLevel || 'info',
+  level: (config && config.server && config.server.logLevel) || 'info',
   format: winston.format.combine(
     winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
     winston.format.errors({ stack: true }),

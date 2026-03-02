@@ -187,12 +187,12 @@ function runTests() {
     // Test 6: Real data scenario (matching current CSV)
     console.log('\n📋 Test 6: Real Data Scenario');
     const testData6 = [
-        { name: 'surya', callstatus: 'Meeting Booked' },
-        { name: 'Pranay', callstatus: 'Meeting Booked' },
-        { name: 'Nanda', callstatus: 'Meeting Booked' },
-        { name: 'varun', callstatus: 'Scheduled' },
-        { name: 'naresh', callstatus: 'Meeting Booked' },
-        { name: 'ganesh', callstatus: 'Pending' }
+        { name: 'Client A', callstatus: 'Meeting Booked' },
+        { name: 'Client B', callstatus: 'Meeting Booked' },
+        { name: 'Client C', callstatus: 'Meeting Booked' },
+        { name: 'Client D', callstatus: 'Scheduled' },
+        { name: 'Client E', callstatus: 'Meeting Booked' },
+        { name: 'Client F', callstatus: 'Pending' }
     ];
     
     const result6 = calculateKPIs(testData6);

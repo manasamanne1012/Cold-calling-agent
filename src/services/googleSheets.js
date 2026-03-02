@@ -8,7 +8,7 @@ const path = require('path');
 const axios = require('axios');
 
 // Google Sheets Configuration
-const SHEET_ID = process.env.GOOGLE_SHEET_ID || '1vOfTLk14C0G9Dz1rTTJIpEe1XB9eDRRv65fnYVQrLWw';
+const SHEET_ID = process.env.GOOGLE_SHEET_ID || 'YOUR_GOOGLE_SHEET_ID';
 const RANGE = process.env.GOOGLE_SHEET_RANGE || "'AI Cold Call'!A:Z";
 
 // Google Sheets Authentication

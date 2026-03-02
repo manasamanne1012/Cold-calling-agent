@@ -65,11 +65,11 @@ app.use((req, res) => {
 app.use(errorHandler);
 
 // Start server
-const server = app.listen(PORT, () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
   logger.info('🚀 AI Cold Call Dashboard Server Started');
   logger.info('='.repeat(50));
-  logger.info(`📍 Server running on: http://localhost:${PORT}`);
-  logger.info(`🌐 Dashboard URL: http://localhost:${PORT}`);
+  logger.info(`📍 Server running on: http://0.0.0.0:${PORT}`);
+  logger.info(`🌐 Dashboard URL: http://${process.env.HOST || '0.0.0.0'}:${PORT}`);
   logger.info(`🔗 Webhook URL: ${config.n8n.webhookUrl || 'Not configured (Demo mode)'}`);
   logger.info(`📊 API Endpoints available:`);
   logger.info(`   GET  /api/dashboard-data - Real-time dashboard metrics`);
@@ -86,6 +86,8 @@ const server = app.listen(PORT, () => {
   if (!config.n8n.webhookUrl) {
     logger.warn('⚠️  WARNING: N8N_WEBHOOK_URL not set - running in demo mode');
     logger.warn('   Set N8N_WEBHOOK_URL in .env file for production use');
+  } else {
+    logger.info(`✅ Using webhook URL: ${config.n8n.webhookUrl}`);
   }
 });
 

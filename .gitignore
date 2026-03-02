@@ -1,63 +1,62 @@
-# Node.js dependencies
+# Dependencies
 node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
 
 # Environment variables
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*
+!.env.example
+
+# Credentials
+service-account.json
+credentials.json
+*.pem
+*.key
 
 # Logs
-logs
+logs/
 *.log
 
-# Runtime data
-pids
-*.pid
-*.seed
-*.pid.lock
+# Data files (may contain PII)
+data/contacts-local/
+data/workflow-history/
+data/*.json
+data/*.csv
 
-# Coverage directory used by tools like istanbul
-coverage/
+# Backup files (contain old credentials)
+backup-files-*/
 
-# Dependency directories
-jspm_packages/
+# Old version/update files
+*.backup
+*.update
+*.new
 
-# Optional npm cache directory
-.npm
+# Operational/deployment fix scripts
+check-server.ps1
+cleanup-*.ps1
+cleanup-*.sh
+cleanup-*.js
+deploy-*.ps1
+deploy-*.sh
+deploy-count-fix.ps1
+deploy-ui-fix.ps1
+fix-*.sh
+reset-server.js
+verify-redirects.ps1
+simple-server.js
+package-node12.json
+package-optimized.json
 
-# Optional REPL history
-.node_repl_history
-
-# Output of 'npm pack'
-*.tgz
-
-# Yarn Integrity file
-.yarn-integrity
-
-# macOS
+# OS files
 .DS_Store
-
-# Windows
 Thumbs.db
-ehthumbs.db
-Desktop.ini
 
-# IDE/Editor files
+# IDE
 .vscode/
 .idea/
-*.swp
-*.swo
-*~
 
-# Temporary files
-temp/
-tmp/
+# Docker
+docker-compose.override.yml
 
-# Build outputs
-dist/
-build/
+# Test coverage
+.nyc_output/
+coverage/
